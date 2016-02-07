@@ -12,7 +12,7 @@ public class ChainElement {
     private Term term;
     private Process process;
     private String string;
-    private ArrayList<ArrayList<ChainElement>> chain = new ArrayList<ArrayList<ChainElement>>();
+    private ArrayList<ChainElement> chain = new ArrayList<ChainElement>();
 
     public ChainElement(Term inputTerm){
         term = inputTerm;
@@ -27,7 +27,7 @@ public class ChainElement {
     }
 
     public ChainElement(ArrayList<ChainElement> inputChain){
-        chain.add(inputChain);
+        chain = inputChain;
     }
 
     public Term getTerm(){
@@ -42,7 +42,7 @@ public class ChainElement {
         return string;
     }
 
-    public ArrayList<ArrayList<ChainElement>> getChain(){
+    public ArrayList<ChainElement> getChain(){
         return chain;
     }
 }

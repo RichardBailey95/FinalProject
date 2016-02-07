@@ -12,10 +12,11 @@ public class main {
     private main() {
     }
 
-    private boolean parseChain(ArrayList<ArrayList<ChainElement>> mainChain){
+    private boolean parseChain(ChainElement mainChain){
         boolean success = false;
-        while(!mainChain.isEmpty()){
-            ArrayList<ChainElement> chainLink = mainChain.get(0);
+        ArrayList<ChainElement> mainChainLink = mainChain.getChain();
+        while(!mainChainLink.isEmpty()){
+            ArrayList<ChainElement> chainLink = mainChainLink.get(0).getChain();
             switch(chainLink.get(0).getString()) {
                 case "O":
                     Term output = chainLink.get(1).getProcess().output(chainLink.get(3).getString());
@@ -24,7 +25,7 @@ public class main {
                     toAdd.add(chainLink.get(2));
                     toAdd.add(new ChainElement(output));
                     outputBuffer.add(toAdd);
-                    mainChain.remove(0);
+                    mainChainLink.remove(0);
                     success = true;
                     break;
                 case "I":
@@ -34,7 +35,7 @@ public class main {
                             chainLink.get(1).getProcess().input(outputBuffer.get(k).get(2).getTerm(), chainLink.get(3).getString());
                             outputBuffer.remove(k);
                             System.out.println("Process " + chainLink.get(1).getProcess().processNumber + " received a new term " + chainLink.get(3).getString() + " from process " + chainLink.get(2).getProcess().processNumber);
-                            mainChain.remove(0);
+                            mainChainLink.remove(0);
                             k=j;
                             success=true;
                         }else{
@@ -46,19 +47,36 @@ public class main {
                     }
                     break;
                 case "C":
-                    if(parseChain(chainLink.get(1).getChain())){
-                        parseChain(chainLink.get(2).getChain());
-                    }else if(parseChain(chainLink.get(2).getChain())){
-                        parseChain(chainLink.get(1).getChain());
+                    if(parseChain(chainLink.get(1))){
+                        parseChain(chainLink.get(2));
+                    }else if(parseChain(chainLink.get(2))){
+                        parseChain(chainLink.get(1));
                     }else{
                         return false;
                     }
-                    mainChain.remove(0);
+                    mainChainLink.remove(0);
                     success = true;
                     break;
             }
         }
         return success;
+    }
+
+    public ChainElement createChainLink(String identifier, Process active, Process communication, String binding){
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(new ChainElement(active));
+        output.add(new ChainElement(communication));
+        output.add(new ChainElement(binding));
+        return new ChainElement(output);
+    }
+
+    public ChainElement createChainLink(String identifier, ChainElement option1, ChainElement option2){
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(option1);
+        output.add(option2);
+        return new ChainElement(output);
     }
 
     public static void main(String[] args){
@@ -84,41 +102,25 @@ public class main {
 
 
         // Test communication between two processes
-        ArrayList<ChainElement> test = new ArrayList<ChainElement>();
-        test.add(new ChainElement("O"));
-        test.add(new ChainElement(a));
-        test.add(new ChainElement(b));
-        test.add(new ChainElement("x"));
+        ChainElement test = letsDoThis.createChainLink("O", a, b, "x");
+        ChainElement test2 = letsDoThis.createChainLink("I", b, a, "y");
+        ChainElement test3 = letsDoThis.createChainLink("O", a, b, "z");
+        ChainElement test4 = letsDoThis.createChainLink("I", b, a, "z");
 
-        ArrayList<ChainElement> test2 = new ArrayList<ChainElement>();
-        test2.add(new ChainElement("I"));
-        test2.add(new ChainElement(b));
-        test2.add(new ChainElement(a));
-        test2.add(new ChainElement("y"));
-
-        ArrayList<ChainElement> test3 = new ArrayList<ChainElement>();
-        test3.add(new ChainElement("O"));
-        test3.add(new ChainElement(a));
-        test3.add(new ChainElement(b));
-        test3.add(new ChainElement("z"));
-
-        ArrayList<ChainElement> test4 = new ArrayList<ChainElement>();
-        test4.add(new ChainElement("I"));
-        test4.add(new ChainElement(b));
-        test4.add(new ChainElement(a));
-        test4.add(new ChainElement("z"));
-
-        ArrayList<ChainElement> compTest = new ArrayList<ChainElement>();
-        compTest.add(new ChainElement("C"));
-        compTest.add(new ChainElement(test2));
-        compTest.add(new ChainElement(test));
-
-        ArrayList<ArrayList<ChainElement>> chain = new ArrayList<ArrayList<ChainElement>>();
+        ArrayList<ChainElement> linkCreate = new ArrayList<ChainElement>();
     //    chain.add(compTest);
-        chain.add(test);
-        chain.add(test2);
-        chain.add(test3);
-        chain.add(test4);
+        linkCreate.add(test);
+        linkCreate.add(test2);
+        linkCreate.add(test3);
+        linkCreate.add(test4);
+
+        ChainElement chain = new ChainElement(linkCreate);
+
+        ArrayList<ChainElement> compCreate = new ArrayList<ChainElement>();
+        ChainElement compTest = letsDoThis.createChainLink("C", chain, chain);
+        compCreate.add(compTest);
+        ChainElement compChain = new ChainElement(compCreate);
+
         letsDoThis.parseChain(chain);
 
 
