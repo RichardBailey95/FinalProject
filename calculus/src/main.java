@@ -117,22 +117,32 @@ public class main {
         ChainElement test3 = letsDoThis.createChainLink("O", "alicetobob", a, b, "z");
         ChainElement test4 = letsDoThis.createChainLink("I", "alicetobob", b, a, "z");
 
+        // Single
+//        ArrayList<ChainElement> linkCreate = new ArrayList<ChainElement>();
+//        linkCreate.add(test);
+//        linkCreate.add(intrude);
+//        linkCreate.add(test2);
+//        linkCreate.add(test3);
+//        linkCreate.add(test4);
+//        ChainElement chain = new ChainElement(linkCreate);
+//        letsDoThis.parseChain(chain);
+
+
+        // Composition of two chains
         ArrayList<ChainElement> linkCreate = new ArrayList<ChainElement>();
-    //    chain.add(compTest);
+        ArrayList<ChainElement> linkCreate2 = new ArrayList<ChainElement>();
         linkCreate.add(test);
         linkCreate.add(intrude);
-        linkCreate.add(test2);
-        linkCreate.add(test3);
+        linkCreate2.add(test2);
+        linkCreate2.add(test3);
         linkCreate.add(test4);
-
         ChainElement chain = new ChainElement(linkCreate);
-
+        ChainElement chain2 = new ChainElement(linkCreate2);
         ArrayList<ChainElement> compCreate = new ArrayList<ChainElement>();
-        ChainElement compTest = letsDoThis.createChainLink("C", chain, chain);
+        ChainElement compTest = letsDoThis.createChainLink("C", chain, chain2);
         compCreate.add(compTest);
         ChainElement compChain = new ChainElement(compCreate);
-
-        letsDoThis.parseChain(chain);
+        letsDoThis.parseChain(compChain);
 
 
         // See what terms the processes have
