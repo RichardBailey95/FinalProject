@@ -1,6 +1,6 @@
 package chains;
 
-import terms.Term;
+import terms.*;
 import process.Process;
 
 import java.util.ArrayList;
@@ -34,6 +34,7 @@ public class ChainElement {
         return term;
     }
 
+
     public Process getProcess(){
         return process;
     }
@@ -45,4 +46,6 @@ public class ChainElement {
     public ArrayList<ChainElement> getChain(){
         return chain;
     }
+
+
 }

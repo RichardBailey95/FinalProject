@@ -2,6 +2,7 @@ package process;
 
 import terms.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,37 +11,48 @@ import java.util.Map;
  */
 public class Process {
     public String processName;
-    private boolean alive;
     public Map<String, Term> terms = new HashMap<String, Term>();
-    private String key;
+    private Map<Process, String> keys = new HashMap<Process, String>();
 
-    public Process(String name, String key){
+    public Process(String name){
         this.processName = name;
-        this.alive = true;
-        this.key = key;
     }
 
-    public void isAlive(){
-        if(alive){
-            System.out.println("Process "+processName+" is alive");
-        }
+    public Process() {
     }
 
     public Term output(String output){
         return this.terms.get(output);
     }
 
-    public void input(Term z, String binding){
-        this.terms.put(binding, z);
+    public Encrypted encrypt(String output, Process to){
+        return new Encrypted(this.terms.get(output), keys.get(to));
     }
 
-    public Boolean decrypt(Encrypted toDecrypt){
-        if(toDecrypt.key == key){
-            this.terms.put("x", toDecrypt.term);
-            return true;
-        } else {
-            return false;
+    public void decrypt(Encrypted toDecrypt, String binding){
+        for (Map.Entry<Process, String> key : this.keys.entrySet()) {
+            if(toDecrypt.key == key.getValue()){
+                this.terms.put(binding, toDecrypt.term);
+                return;
+            }
+        }
+        this.terms.put(binding, toDecrypt);
+    }
+
+    public void input(Term z, String binding){
+        if(z instanceof Encrypted){
+            decrypt((Encrypted) z, binding);
+        }else {
+            this.terms.put(binding, z);
         }
     }
 
+    public void setKey(String key, Process share){
+        this.keys.put(share, key);
+        return;
+    }
+
+    public String getKey(Process share){
+        return keys.get(share);
+    }
 }
