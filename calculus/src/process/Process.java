@@ -13,9 +13,11 @@ public class Process {
     public String processName;
     public Map<String, Term> terms = new HashMap<String, Term>();
     private Map<Process, String> keys = new HashMap<Process, String>();
+    private Map<Process, Name> channels = new HashMap<Process, Name>();
 
     public Process(String name){
         this.processName = name;
+        return;
     }
 
     public Process() {
@@ -37,6 +39,7 @@ public class Process {
             }
         }
         this.terms.put(binding, toDecrypt);
+        return;
     }
 
     public void input(Term z, String binding){
@@ -45,6 +48,7 @@ public class Process {
         }else {
             this.terms.put(binding, z);
         }
+        return;
     }
 
     public void setKey(String key, Process share){
@@ -54,5 +58,14 @@ public class Process {
 
     public String getKey(Process share){
         return keys.get(share);
+    }
+
+    public void addChannel(Process with, Name channel){
+        channels.put(with, channel);
+        return;
+    }
+
+    public Name getChannel(Process with){
+        return channels.get(with);
     }
 }
