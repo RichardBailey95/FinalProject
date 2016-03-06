@@ -10,13 +10,12 @@ import java.util.*;
  * Created by Richard on 29/02/2016.
  */
 public class Server extends Process{
-    public String serverName;
     public Map<Process, String> serverKeys = new HashMap<Process, String>();
     public Map<String, String> symKeys = new HashMap<String, String>();
     public Map<String, Name> channels = new HashMap<String, Name>();
 
     public Server(String name){
-        this.serverName = name;
+        this.processName = name;
     }
 
     public String establishConnection(Process process){
@@ -24,11 +23,13 @@ public class Server extends Process{
         return serverKeys.get(process);
     }
 
-    public void generateKey(Process one, Process two){
-        symKeys.put(one.processName + two.processName, UUID.randomUUID().toString());
+    public String generateKey(Process one, Process two){
+        String key = UUID.randomUUID().toString();
+        symKeys.put(one.processName + two.processName, key);
+        return key;
     }
 
-    public String getKey(Process one, Process two){
+    public String getPublicKey(Process one, Process two){
         if(symKeys.containsKey(one.processName+two.processName)){
             return symKeys.get(one.processName+two.processName);
         } else if (symKeys.containsKey(two.processName+one.processName)){

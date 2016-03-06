@@ -20,10 +20,16 @@ public class main {
 
 
 
-    private boolean parseChain(ArrayList<ArrayList<ChainElement>> mainChain){
+    private void parseChain(ArrayList<ArrayList<ChainElement>> mainChain){
         int iterator = 0;
         int previous = 0;
+        int success = -1;
+        int continueValue = 0;
         while(!mainChain.isEmpty()){
+            if(success == iterator && continueValue != 2){
+                System.out.println("The process has reached a block and can not continue.");
+                return;
+            }
             if(iterator == mainChain.size()){
                 iterator = previous;
                 previous = 0;
@@ -32,7 +38,7 @@ public class main {
                 }
             }
             ArrayList<ChainElement> chainLink = mainChain.get(iterator).get(0).getChain();
-            int continueValue = parseChainPiece(chainLink);
+            continueValue = parseChainPiece(chainLink);
             if(continueValue == 0){
                 iterator++;
             }else if(continueValue == 1){
@@ -40,6 +46,7 @@ public class main {
                 if(mainChain.get(iterator).isEmpty()){
                     mainChain.remove(iterator);
                 }
+                success = iterator;
                 previous = iterator++;
                 iterator = mainChain.size() - 1;
             }else if(continueValue == 2) {
@@ -47,9 +54,15 @@ public class main {
                 if (mainChain.get(iterator).isEmpty()) {
                     mainChain.remove(iterator);
                 }
+                success = iterator;
+            } else if(continueValue == 3) {
+                mainChain.remove(iterator);
+            }
+            if(continueValue != 0) {
+                scan.nextLine();
             }
         }
-        return true;
+        return;
     }
 
     private int parseChainPiece(ArrayList<ChainElement> piece){
@@ -64,6 +77,7 @@ public class main {
                 toAdd.add(new ChainElement(output));
                 outputBuffer.add(toAdd);
                 toContinue = 1;
+                System.out.println(piece.get(1).getProcess().processName + " sent a term, " + piece.get(3).getString() + ", to " + piece.get(2).getProcess().processName);
                 break;
             case "E":
                 Encrypted encrypted = piece.get(1).getProcess().encrypt(piece.get(3).getString(), piece.get(2).getProcess());
@@ -74,6 +88,7 @@ public class main {
                 toAdd.add(new ChainElement(encrypted));
                 outputBuffer.add(toAdd);
                 toContinue = 1;
+                System.out.println(piece.get(1).getProcess().processName + " sent an encrypted term, " + piece.get(3).getString() + ", to " + piece.get(2).getProcess().processName);
                 break;
             case "I":
                 int j = outputBuffer.size();
@@ -83,12 +98,27 @@ public class main {
                         if (outputBuffer.get(k).get(2).getProcess() == piece.get(1).getProcess()) {
                             outputBuffer.remove(k);
                         }
-                        System.out.println(piece.get(1).getProcess().processName + " received a term " + piece.get(3).getString() + " from " + piece.get(2).getProcess().processName);
+                        System.out.println(piece.get(1).getProcess().processName + " received a term, " + piece.get(3).getString() + ", from " + piece.get(2).getProcess().processName);
                         k = j;
                         toContinue = 2;
                     } else {
                         toContinue = 0;
                     }
+                }
+                break;
+            case "D":
+                boolean temp = false;
+                if(piece.get(1).getProcess().terms.containsKey(piece.get(3).getString())){
+                    temp = piece.get(1).getProcess().decrypt((Encrypted) piece.get(1).getProcess().output(piece.get(2).getString()), piece.get(2).getString(), piece.get(1).getProcess().terms.get(piece.get(3).getString()).returnValue());
+                } else {
+                    temp = piece.get(1).getProcess().decrypt((Encrypted) piece.get(1).getProcess().output(piece.get(2).getString()), piece.get(2).getString(), piece.get(3).getString());
+                }
+                if(temp){
+                    toContinue = 1;
+                    System.out.println(piece.get(1).getProcess().processName + " decrypted a term, " + piece.get(2).getString());
+                } else {
+                    System.out.println("Could not be decrypted and terminated");
+                    toContinue = 3;
                 }
                 break;
         }
@@ -101,11 +131,30 @@ public class main {
 
     // Input and Output
     public ChainElement createChainLink(String identifier, Process active, Process communication, String binding){
+        /*
+        ("O", outputtingFrom, outputtingTo, binding)
+        ("E", encryptingFrom, encryptingTo, binding)
+        ("I", inputtingTo, inputtingFrom, binding)
+         */
+
         ArrayList<ChainElement> output = new ArrayList<ChainElement>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
         output.add(new ChainElement(communication));
         output.add(new ChainElement(binding));
+        return new ChainElement(output);
+    }
+
+    public ChainElement createChainLink(String identifier, Process active, String binding, String key){
+        /*
+        ("D", decryptingProcess, binding, key)
+         */
+
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(new ChainElement(active));
+        output.add(new ChainElement(binding));
+        output.add(new ChainElement(key));
         return new ChainElement(output);
     }
 
@@ -120,24 +169,78 @@ public class main {
         System.out.println("~~~~~\n");
     }
 
-    public static void main(String[] args){
-        main letsDoThis = new main();
+    public void wideMouthFrog(){
+        // Agent creation
+        Process wmfA = new Process("Frog Alice");
+        Process wmfB = new Process("Frog Bob");
+        Server wmfS = new Server("Frog Server");
+            activeProcesses.add(wmfA);
+            activeProcesses.add(wmfB);
+            activeProcesses.add(wmfS);
+        // Channel creation
+        wmfS.createChannel(wmfA, wmfS);
+        wmfS.createChannel(wmfS, wmfB);
+        wmfS.createChannel(wmfA, wmfB);
+        // Key creation
+        wmfA.setKey(wmfS.generateKey(wmfA, wmfB), wmfB);
+        wmfA.setKey(wmfS.generateKey(wmfA, wmfS), wmfS);
+        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfA), wmfA);
+        wmfB.setKey(wmfS.generateKey(wmfB, wmfS), wmfS);
+        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfB), wmfB);
+        // Variable creation
+        wmfA.input(new Name(wmfA.getKey(wmfB)), "x");
+        wmfA.input(new Name("Message to send"), "M");
+        // Alice chain
+        ArrayList<ChainElement> wmfAlice = new ArrayList<ChainElement>();
+        ChainElement wmfA1 = createChainLink("E", wmfA, wmfS, "x");
+        ChainElement wmfA2 = createChainLink("E", wmfA, wmfB, "M");
+        wmfAlice.add(wmfA1);
+        wmfAlice.add(wmfA2);
+        // Server chain
+        ArrayList<ChainElement> wmfServer = new ArrayList<ChainElement>();
+        ChainElement wmfS1 = createChainLink("I", wmfS, wmfA, "x");
+        ChainElement wmfS2 = createChainLink("D", wmfS, "x", wmfS.getKey(wmfA));
+        ChainElement wmfS3 = createChainLink("E", wmfS, wmfB, "x");
+        wmfServer.add(wmfS1);
+        wmfServer.add(wmfS2);
+        wmfServer.add(wmfS3);
+        // Bob chain
+        ArrayList<ChainElement> wmfBob = new ArrayList<ChainElement>();
+        ChainElement wmfB1 = createChainLink("I", wmfB, wmfS, "x");
+        ChainElement wmfB2 = createChainLink("D", wmfB, "x", wmfB.getKey(wmfS));
+        ChainElement wmfB3 = createChainLink("I", wmfB, wmfA, "M");
+        ChainElement wmfB4 = createChainLink("D", wmfB, "M", "x");
+        wmfBob.add(wmfB1);
+        wmfBob.add(wmfB2);
+        wmfBob.add(wmfB3);
+        wmfBob.add(wmfB4);
+        // Main chain
+        ArrayList<ArrayList<ChainElement>> wmfChain = new ArrayList<ArrayList<ChainElement>>();
+        wmfChain.add(wmfAlice);
+        wmfChain.add(wmfServer);
+        wmfChain.add(wmfBob);
+        // Execute
+        outputProcesses();
+        parseChain(wmfChain);
+        outputProcesses();
+    }
 
+    public void mainTest(){
         // Create a server
         Server server = new Server("Simon");
 
 
         // Create Alice
         Process a = new Process("Alice");
-        letsDoThis.activeProcesses.add(a);
+        activeProcesses.add(a);
         // Create Bob
         Process b = new Process("Bob");
-        letsDoThis.activeProcesses.add(b);
+        activeProcesses.add(b);
 
         // Generate symmetric keys
         server.generateKey(a,b);
-        a.setKey(server.getKey(a,b),b);
-        b.setKey(server.getKey(b,a),a);
+        a.setKey(server.getPublicKey(a,b),b);
+        b.setKey(server.getPublicKey(b,a),a);
 
         // Generate channel
         server.createChannel(a,b);
@@ -160,23 +263,23 @@ public class main {
 
 
         // See what terms the processes have
-        letsDoThis.outputProcesses();
+        outputProcesses();
 
 
         // Intruder process
         Process i = new Process("Intruder");
-        letsDoThis.activeProcesses.add(i);
+        activeProcesses.add(i);
 
 
         // Test communication between two processes and an intruder watching
-        ChainElement test = letsDoThis.createChainLink("E", a, b, "a");
-        ChainElement test2 = letsDoThis.createChainLink("I", b, a, "y");
-        ChainElement reply = letsDoThis.createChainLink("O", b, a, "x");
-        ChainElement accept = letsDoThis.createChainLink("I", a, b, "a");
-        ChainElement test3 = letsDoThis.createChainLink("O", a, b, "z");
-        ChainElement test4 = letsDoThis.createChainLink("I", b, a, "z");
-        ChainElement intrude = letsDoThis.createChainLink("I", i, a, "x");
-        ChainElement intrude2 = letsDoThis.createChainLink("I", i, a, "y");
+        ChainElement test = createChainLink("E", a, b, "a");
+        ChainElement test2 = createChainLink("I", b, a, "y");
+        ChainElement reply = createChainLink("O", b, a, "x");
+        ChainElement accept = createChainLink("I", a, b, "a");
+        ChainElement test3 = createChainLink("O", a, b, "z");
+        ChainElement test4 = createChainLink("I", b, a, "z");
+        ChainElement intrude = createChainLink("I", i, a, "x");
+        ChainElement intrude2 = createChainLink("I", i, a, "y");
 
 
         // Execute the processes. Alice and Bob run in composition
@@ -195,11 +298,18 @@ public class main {
         tester.add(aliceProcess);
         tester.add(bobProcess);
 //        tester.add(intruderProcess);
-        letsDoThis.parseChain(tester);
+        parseChain(tester);
 
 
         // See what terms the processes have
-        letsDoThis.outputProcesses();
+        outputProcesses();
+    }
+
+    public static void main(String[] args){
+        main letsDoThis = new main();
+
+        letsDoThis.wideMouthFrog();
+
         System.exit(0);
 
     }

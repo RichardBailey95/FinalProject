@@ -31,23 +31,21 @@ public class Process {
         return new Encrypted(this.terms.get(output), keys.get(to));
     }
 
-    public void decrypt(Encrypted toDecrypt, String binding){
-        for (Map.Entry<Process, String> key : this.keys.entrySet()) {
-            if(toDecrypt.key == key.getValue()){
-                this.terms.put(binding, toDecrypt.term);
-                return;
-            }
+    public boolean decrypt(Encrypted toDecrypt, String binding, String key){
+        if(toDecrypt.key == key){
+            this.terms.put(binding, toDecrypt.term);
+            return true;
         }
         this.terms.put(binding, toDecrypt);
-        return;
+        return false;
     }
 
     public void input(Term z, String binding){
-        if(z instanceof Encrypted){
-            decrypt((Encrypted) z, binding);
-        }else {
+//        if(z instanceof Encrypted){
+//            decrypt((Encrypted) z, binding);
+//        }else {
             this.terms.put(binding, z);
-        }
+      //  }
         return;
     }
 
