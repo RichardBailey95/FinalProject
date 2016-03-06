@@ -115,7 +115,7 @@ public class main {
                     temp = piece.get(1).getProcess().decrypt((Encrypted) piece.get(1).getProcess().output(piece.get(2).getString()), piece.get(2).getString(), piece.get(3).getString());
                 }
                 if(temp){
-                    toContinue = 1;
+                    toContinue = 2;
                     System.out.println(piece.get(1).getProcess().processName + " decrypted a term, " + piece.get(2).getString());
                 } else {
                     System.out.println("Could not be decrypted and terminated");
@@ -130,7 +130,7 @@ public class main {
 
 
 
-    // Input and Output
+    // Input, Output, Encrypt output
     public ChainElement createChainLink(String identifier, Process active, Process communication, String binding){
         /*
         ("O", outputtingFrom, outputtingTo, binding)
@@ -146,6 +146,7 @@ public class main {
         return new ChainElement(output);
     }
 
+    // Decrypt
     public ChainElement createChainLink(String identifier, Process active, String binding, String key){
         /*
         ("D", decryptingProcess, binding, key)
@@ -171,46 +172,47 @@ public class main {
     }
 
     public void wideMouthFrog(){
+        activeProcesses.clear();
         // Agent creation
-        Process wmfA = new Process("Frog Alice");
-        Process wmfB = new Process("Frog Bob");
-        Server wmfS = new Server("Frog Server");
+        Process wmfA = new Process("wmfAlice");
+        Process wmfB = new Process("wmfBob");
+        Server wmfS = new Server("wmfServer");
             activeProcesses.add(wmfA);
             activeProcesses.add(wmfB);
             activeProcesses.add(wmfS);
         // Channel creation
-        wmfS.createChannel(wmfA, wmfS);
-        wmfS.createChannel(wmfS, wmfB);
-        wmfS.createChannel(wmfA, wmfB);
+        wmfS.createChannel(wmfA, wmfS); // ChannelAS for communication between A and S
+        wmfS.createChannel(wmfS, wmfB); // ChannelBS for communication between B and S
+        wmfS.createChannel(wmfA, wmfB); // ChannelAB for communication between A and B
         // Key creation
-        wmfA.setKey(wmfS.generateKey(wmfA, wmfB), wmfB);
-        wmfA.setKey(wmfS.generateKey(wmfA, wmfS), wmfS);
-        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfA), wmfA);
-        wmfB.setKey(wmfS.generateKey(wmfB, wmfS), wmfS);
-        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfB), wmfB);
+        wmfA.setKey(wmfS.generateKey(wmfA, wmfB), wmfB); // KeyAB known to A
+        wmfA.setKey(wmfS.generateKey(wmfA, wmfS), wmfS); // KeyAS known to A and S
+        wmfB.setKey(wmfS.generateKey(wmfB, wmfS), wmfS); // KeyBS known to B and S
+        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfA), wmfA); // KeyAS known to A and S
+        wmfS.setKey(wmfS.getPublicKey(wmfS, wmfB), wmfB); // KeyBS known to B and S
         // Variable creation
-        wmfA.input(new Name(wmfA.getKey(wmfB)), "x");
-        wmfA.input(new Name("Message to send"), "M");
+        wmfA.input(new Name(wmfA.getKey(wmfB)), "KeyAB"); // The KeyAB as a variable
+        wmfA.input(new Name("Message to send"), "M"); // The secret message M
         // Alice chain
         ArrayList<ChainElement> wmfAlice = new ArrayList<ChainElement>();
-        ChainElement wmfA1 = createChainLink("E", wmfA, wmfS, "x");
-        ChainElement wmfA2 = createChainLink("E", wmfA, wmfB, "M");
+        ChainElement wmfA1 = createChainLink("E", wmfA, wmfS, "KeyAB"); // ChannelAS<{KeyAB}KeyAS>
+        ChainElement wmfA2 = createChainLink("E", wmfA, wmfB, "M"); // ChannelAB<{M}KeyAB>
         wmfAlice.add(wmfA1);
         wmfAlice.add(wmfA2);
         // Server chain
         ArrayList<ChainElement> wmfServer = new ArrayList<ChainElement>();
-        ChainElement wmfS1 = createChainLink("I", wmfS, wmfA, "x");
-        ChainElement wmfS2 = createChainLink("D", wmfS, "x", wmfS.getKey(wmfA));
-        ChainElement wmfS3 = createChainLink("E", wmfS, wmfB, "x");
+        ChainElement wmfS1 = createChainLink("I", wmfS, wmfA, "x"); // ChannelAS(x)
+        ChainElement wmfS2 = createChainLink("D", wmfS, "x", wmfS.getKey(wmfA)); // case x of {y}KeyAS in
+        ChainElement wmfS3 = createChainLink("E", wmfS, wmfB, "x"); // ChannelBS<{y}KeyBS>
         wmfServer.add(wmfS1);
         wmfServer.add(wmfS2);
         wmfServer.add(wmfS3);
         // Bob chain
         ArrayList<ChainElement> wmfBob = new ArrayList<ChainElement>();
-        ChainElement wmfB1 = createChainLink("I", wmfB, wmfS, "x");
-        ChainElement wmfB2 = createChainLink("D", wmfB, "x", wmfB.getKey(wmfS));
-        ChainElement wmfB3 = createChainLink("I", wmfB, wmfA, "M");
-        ChainElement wmfB4 = createChainLink("D", wmfB, "M", "x");
+        ChainElement wmfB1 = createChainLink("I", wmfB, wmfS, "x"); // ChannelBS(b)
+        ChainElement wmfB2 = createChainLink("D", wmfB, "x", wmfB.getKey(wmfS)); // case x of {y}KeyBS in
+        ChainElement wmfB3 = createChainLink("I", wmfB, wmfA, "M"); // ChannelAB(z)
+        ChainElement wmfB4 = createChainLink("D", wmfB, "M", "x"); // case z of {M}x in F(w)
         wmfBob.add(wmfB1);
         wmfBob.add(wmfB2);
         wmfBob.add(wmfB3);
@@ -227,6 +229,7 @@ public class main {
     }
 
     public void mainTest(){
+        activeProcesses.clear();
         // Create a server
         Server server = new Server("Simon");
 
@@ -275,6 +278,7 @@ public class main {
         // Test communication between two processes and an intruder watching
         ChainElement test = createChainLink("E", a, b, "a");
         ChainElement test2 = createChainLink("I", b, a, "y");
+        ChainElement decryptTest2 = createChainLink("D", b, "y", b.getKey(a));
         ChainElement reply = createChainLink("O", b, a, "x");
         ChainElement accept = createChainLink("I", a, b, "a");
         ChainElement test3 = createChainLink("O", a, b, "z");
@@ -292,6 +296,7 @@ public class main {
         intruderProcess.add(intrude);
         intruderProcess.add(intrude2);
         bobProcess.add(test2);
+        bobProcess.add(decryptTest2);
         bobProcess.add(reply);
         aliceProcess.add(test3);
         bobProcess.add(test4);
@@ -309,7 +314,11 @@ public class main {
     public static void main(String[] args){
         main letsDoThis = new main();
 
+        // Demonstrate the wide mouth frog protocol
         letsDoThis.wideMouthFrog();
+
+        // Test calculus
+        //letsDoThis.mainTest();
 
         System.exit(0);
 
