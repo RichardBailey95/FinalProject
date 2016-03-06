@@ -3,7 +3,6 @@ import process.Server;
 import terms.*;
 import chains.ChainElement;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
@@ -47,8 +46,10 @@ public class main {
                     mainChain.remove(iterator);
                 }
                 success = iterator;
-                previous = iterator++;
-                iterator = mainChain.size() - 1;
+                iterator++;
+//                FOR AN INTRUDER
+//                previous = iterator++;
+//                iterator = mainChain.size();
             }else if(continueValue == 2) {
                 mainChain.get(iterator).remove(0);
                 if (mainChain.get(iterator).isEmpty()) {
