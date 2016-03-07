@@ -25,7 +25,7 @@ public class main {
         int success = -1;
         int continueValue = 0;
         while(!mainChain.isEmpty()){
-            if(success == iterator && continueValue != 2){
+            if(success == iterator && continueValue != 2 && continueValue != 4){
                 System.out.println("The process has reached a block and can not continue.");
                 return;
             }
@@ -58,6 +58,8 @@ public class main {
                 success = iterator;
             } else if(continueValue == 3) {
                 mainChain.remove(iterator);
+            } else if(continueValue == 4) {
+                iterator++;
             }
             if(continueValue != 0) {
                 scan.nextLine();
@@ -122,6 +124,10 @@ public class main {
                     toContinue = 3;
                 }
                 break;
+            case "R":
+                parseChainPiece(piece.get(1).getChain());
+                toContinue = 4;
+                break;
         }
         return toContinue;
     }
@@ -158,6 +164,18 @@ public class main {
         output.add(new ChainElement(binding));
         output.add(new ChainElement(key));
         return new ChainElement(output);
+    }
+
+    // Replicate
+    public ChainElement createChainLink(String identifier, ChainElement chain){
+        /*
+        ("R", chainToReplicate)
+         */
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(chain);
+        return new ChainElement(output);
+
     }
 
     public void outputProcesses(){
@@ -282,6 +300,7 @@ public class main {
         ChainElement reply = createChainLink("O", b, a, "x");
         ChainElement accept = createChainLink("I", a, b, "a");
         ChainElement test3 = createChainLink("O", a, b, "z");
+        ChainElement replicate = createChainLink("R", test3);
         ChainElement test4 = createChainLink("I", b, a, "z");
         ChainElement intrude = createChainLink("I", i, a, "x");
         ChainElement intrude2 = createChainLink("I", i, a, "y");
@@ -299,6 +318,7 @@ public class main {
         bobProcess.add(decryptTest2);
         bobProcess.add(reply);
         aliceProcess.add(test3);
+        aliceProcess.add(replicate);
         bobProcess.add(test4);
         ArrayList<ArrayList<ChainElement>> tester = new ArrayList<ArrayList<ChainElement>>();
         tester.add(aliceProcess);
