@@ -136,7 +136,32 @@ public class main {
                     toContinue = 4;
                 }
                 break;
-            case "N":
+            case "M":
+                if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).returnValue() == piece.get(1).getProcess().terms.get(piece.get(3).getString()).returnValue()){
+                    System.out.println("Match successful");
+                    scan.nextLine();
+                    toContinue = 2;
+                } else {
+                    System.out.println("Match unsuccessful");
+                    scan.nextLine();
+                    toContinue = 3;
+                }
+                break;
+            case "S":
+                if(piece.get(1).getProcess().terms.get(piece.get(2).getString()) instanceof Pair) {
+                    Pair toSplit = (Pair) piece.get(1).getProcess().terms.get(piece.get(2).getString());
+                    piece.get(1).getProcess().input(toSplit.getFirstTerm(), piece.get(3).getString());
+                    piece.get(1).getProcess().input(toSplit.getSecondTerm(), piece.get(4).getString());
+                    System.out.println("Pair splitting successful");
+                    scan.nextLine();
+                    toContinue = 2;
+                } else {
+                    System.out.println("Pair splitting failed");
+                    scan.nextLine();
+                    toContinue = 3;
+                }
+                break;
+            case "N":   // Doesn't work as intended :(
                 if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).getNumber() == 0){
                     ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<ArrayList<ChainElement>>();
                     ArrayList<ChainElement> chainInt = new ArrayList<ChainElement>(piece.get(3).getChain());
@@ -156,6 +181,7 @@ public class main {
                     scan.nextLine();
                     toContinue = 3;
                 }
+                break;
         }
         return toContinue;
     }
@@ -351,6 +377,7 @@ public class main {
 
         // Populate Bob
         b.input(new Name("I was born in Bob"), "x");
+        b.input(new Name("This message is encrypted"), "m");
 
 
         // See what terms the processes have
@@ -365,12 +392,14 @@ public class main {
         // Test communication between two processes and an intruder watching
         ChainElement test = createChainLink("E", getChannel(a, b), a, b, "a");
         ChainElement test2 = createChainLink("I", getChannel(b, a), b, a, "y");
+        ChainElement match = createChainLink("M", b, "y", "m");
         ChainElement decryptTest2 = createChainLink("D", b, "y", b.getKey(a));
         ChainElement reply = createChainLink("O", getChannel(b, a), b, a, "x");
         ChainElement accept = createChainLink("I", getChannel(a, b), a, b, "a");
-        ChainElement test3 = createChainLink("O", getChannel(a, b), a, b, "z");
+        ChainElement test3 = createChainLink("O", getChannel(a, b), a, b, "y");
         //ChainElement replicate = createChainLink("R", test3);
         ChainElement test4 = createChainLink("I", getChannel(b, a), b, a, "z");
+        ChainElement pairSplit = createChainLink("S", b, "z", "za", "zb");
         ChainElement intrude = createChainLink("I", getChannel(a, b), i, a, "x");
         ChainElement intrude2 = createChainLink("I", getChannel(a, b), i, a, "y");
 
@@ -385,10 +414,12 @@ public class main {
         intruderProcess.add(intrude2);
         bobProcess.add(test2);
         bobProcess.add(decryptTest2);
+        bobProcess.add(match);
         bobProcess.add(reply);
         aliceProcess.add(test3);
        // aliceProcess.add(replicate);
         bobProcess.add(test4);
+        bobProcess.add(pairSplit);
         ArrayList<ArrayList<ChainElement>> tester = new ArrayList<ArrayList<ChainElement>>();
         tester.add(aliceProcess);
         tester.add(bobProcess);
@@ -437,13 +468,13 @@ public class main {
         main letsDoThis = new main();
 
         // Demonstrate the wide mouth frog protocol
-        letsDoThis.wideMouthFrog();
+        //letsDoThis.wideMouthFrog();
 
         // Test recursion
         //letsDoThis.recurseTest();
 
         // Test calculus
-        //letsDoThis.mainTest();
+        letsDoThis.mainTest();
 
         System.exit(0);
 
