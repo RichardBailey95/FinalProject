@@ -5,6 +5,7 @@ import terms.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Richard on 10/12/2015.
@@ -13,7 +14,7 @@ public class Process {
     public String processName;
     public Map<String, Term> terms = new HashMap<String, Term>();
     private Map<Process, String> keys = new HashMap<Process, String>();
-    private Map<Process, Name> channels = new HashMap<Process, Name>();
+    public Map<String, String> symKeys = new HashMap<String, String>();
 
     public Process(String name){
         this.processName = name;
@@ -58,12 +59,19 @@ public class Process {
         return keys.get(share);
     }
 
-    public void addChannel(Process with, Name channel){
-        channels.put(with, channel);
-        return;
+    public String generateKey(Process one, Process two){
+        String key = UUID.randomUUID().toString();
+        symKeys.put(one.processName + two.processName, key);
+        return key;
     }
 
-    public Name getChannel(Process with){
-        return channels.get(with);
+    public String getPublicKey(Process one, Process two){
+        if(symKeys.containsKey(one.processName+two.processName)){
+            return symKeys.get(one.processName+two.processName);
+        } else if (symKeys.containsKey(two.processName+one.processName)){
+            return symKeys.get(two.processName+one.processName);
+        }
+        generateKey(one, two);
+        return symKeys.get(one.processName+two.processName);
     }
 }

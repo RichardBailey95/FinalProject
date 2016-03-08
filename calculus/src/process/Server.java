@@ -39,12 +39,6 @@ public class Server extends Process{
         return symKeys.get(one.processName+two.processName);
     }
 
-    public void createChannel(Process one, Process two){
-        Name channel = new Name(one.processName+two.processName);
-        channels.put(one.processName+two.processName, channel);
-        one.addChannel(two, channel);
-        two.addChannel(one, channel);
-    }
 
     // Not needed at the moment, maybe later.
 //    public Name requestChannel(Process one, Process two){
