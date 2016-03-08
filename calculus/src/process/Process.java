@@ -42,11 +42,7 @@ public class Process {
     }
 
     public void input(Term z, String binding){
-//        if(z instanceof Encrypted){
-//            decrypt((Encrypted) z, binding);
-//        }else {
-            this.terms.put(binding, z);
-      //  }
+        this.terms.put(binding, z);
         return;
     }
 

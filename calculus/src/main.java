@@ -20,21 +20,20 @@ public class main {
 
 
 
-    private void parseChain(ArrayList<ArrayList<ChainElement>> mainChain){
+    private int parseChain(ArrayList<ArrayList<ChainElement>> mainChain){
         int iterator = 0;
-        int previous = 0;
         int success = -1;
         int continueValue = 0;
         while(!mainChain.isEmpty()){
             if(success == iterator && continueValue != 2 && continueValue != 4){
                 System.out.println("The process has reached a block and can not continue.");
-                return;
+                return continueValue;
             }
-            if(iterator == mainChain.size()){
-                iterator = previous;
-                previous = 0;
-                if(mainChain.size() == 1){
-                    iterator = 0;
+            if(iterator >= mainChain.size()){
+                iterator = 0;
+                if(success == -1){
+                    mainChain.clear();
+                    return -1;
                 }
             }
             ArrayList<ChainElement> chainLink = mainChain.get(iterator).get(0).getChain();
@@ -62,11 +61,8 @@ public class main {
             } else if(continueValue == 4) {
                 iterator++;
             }
-            if(continueValue != 0) {
-                scan.nextLine();
-            }
-        }
-        return;
+                    }
+        return continueValue;
     }
 
     private int parseChainPiece(ArrayList<ChainElement> piece){
@@ -82,6 +78,7 @@ public class main {
                 outputBuffer.add(toAdd);
                 toContinue = 1;
                 System.out.println(piece.get(2).getProcess().processName + " sent a term, " + piece.get(4).getString() + ", to " + piece.get(3).getProcess().processName);
+                scan.nextLine();
                 break;
             case "E":
                 Encrypted encrypted = piece.get(2).getProcess().encrypt(piece.get(4).getString(), piece.get(3).getProcess());
@@ -93,6 +90,7 @@ public class main {
                 outputBuffer.add(toAdd);
                 toContinue = 1;
                 System.out.println(piece.get(2).getProcess().processName + " sent an encrypted term, " + piece.get(4).getString() + ", to " + piece.get(3).getProcess().processName);
+                scan.nextLine();
                 break;
             case "I":
                 int j = outputBuffer.size();
@@ -103,6 +101,7 @@ public class main {
                             outputBuffer.remove(k);
                         }
                         System.out.println(piece.get(2).getProcess().processName + " received a term, " + piece.get(4).getString() + ", from " + piece.get(3).getProcess().processName);
+                        scan.nextLine();
                         k = j;
                         toContinue = 2;
                     } else {
@@ -120,8 +119,10 @@ public class main {
                 if(temp){
                     toContinue = 2;
                     System.out.println(piece.get(1).getProcess().processName + " decrypted a term, " + piece.get(2).getString());
+                    scan.nextLine();
                 } else {
                     System.out.println("Could not be decrypted and terminated");
+                    scan.nextLine();
                     toContinue = 3;
                 }
                 break;
@@ -129,9 +130,32 @@ public class main {
                 ArrayList<ArrayList<ChainElement>> tempChain = new ArrayList<ArrayList<ChainElement>>();
                 ArrayList<ChainElement> chain = new ArrayList<ChainElement>(piece.get(1).getChain());
                 tempChain.add(chain);
-                parseChain(tempChain);
-                toContinue = 4;
+                if(parseChain(tempChain) == -1){
+                    toContinue = 1;
+                } else {
+                    toContinue = 4;
+                }
                 break;
+            case "N":
+                if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).getNumber() == 0){
+                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<ArrayList<ChainElement>>();
+                    ArrayList<ChainElement> chainInt = new ArrayList<ChainElement>(piece.get(3).getChain());
+                    tempChainInt.add(chainInt);
+                    parseChain(tempChainInt);
+                    toContinue = 3;
+                } else if (piece.get(1).getProcess().terms.get(piece.get(2).getString()).successor() == piece.get(4).getTerm().getNumber()){
+                    piece.get(4).getTerm().updateValue(piece.get(4).getTerm().successor());
+                    piece.get(1).getProcess().terms.get(piece.get(2).getString()).updateValue(piece.get(1).getProcess().terms.get(piece.get(2).getString()).successor());
+                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<ArrayList<ChainElement>>();
+                    ArrayList<ChainElement> chainInt = new ArrayList<ChainElement>(piece.get(5).getChain());
+                    tempChainInt.add(chainInt);
+                    parseChain(tempChainInt);
+                    toContinue = 2;
+                } else {
+                    System.out.println("Integer case failed");
+                    scan.nextLine();
+                    toContinue = 3;
+                }
         }
         return toContinue;
     }
@@ -147,7 +171,6 @@ public class main {
         ("E", channel, encryptFrom, encryptTo, binding)
         ("I", channel, inputFrom, inputFrom, binding)
          */
-
         ArrayList<ChainElement> output = new ArrayList<ChainElement>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(channel));
@@ -157,12 +180,12 @@ public class main {
         return new ChainElement(output);
     }
 
-    // Decrypt
+    // Decrypt, Match
     public ChainElement createChainLink(String identifier, Process active, String binding, String key){
         /*
         ("D", decryptingProcess, binding, key)
+        ("M", process, binding1, binding2)
          */
-
         ArrayList<ChainElement> output = new ArrayList<ChainElement>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
@@ -180,7 +203,35 @@ public class main {
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(chain));
         return new ChainElement(output);
+    }
 
+    // Pair splitting
+    public ChainElement createChainLink(String identifier, Process active, String pairBind, String binding1, String binding2){
+        /*
+        ("S", process, pair binding, first term, second term)
+         */
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(new ChainElement(active));
+        output.add(new ChainElement(pairBind));
+        output.add(new ChainElement(binding1));
+        output.add(new ChainElement(binding2));
+        return new ChainElement(output);
+    }
+
+    // Interger Case
+    public ChainElement createChainLink(String identifier, Process active, String binding, ArrayList<ChainElement> chain1, Zero succ, ArrayList<ChainElement> chain2){
+        /*
+        ("N", process, binding, 0 case process, succ(x) process)
+         */
+        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        output.add(new ChainElement(identifier));
+        output.add(new ChainElement(active));
+        output.add(new ChainElement(binding));
+        output.add(new ChainElement(chain1));
+        output.add(new ChainElement(succ));
+        output.add(new ChainElement(chain2));
+        return new ChainElement(output);
     }
 
     public Name createChannel(Process one, Process two){
@@ -294,11 +345,7 @@ public class main {
         a.setKey(a.generateKey(a, server), server);
         a.input(new Name(a.getKey(server)), "serverKey");
         a.input(new Pair(new Name("I am from a pair in Alice"), new Name("Alice's pair")), "y");
-        Zero testZero = new Zero();
-        for(int i=0; i<10; i++){
-            testZero.successor();
-        }
-        a.input(testZero, "z");
+        a.input(new Zero(10), "z");
         a.input(new Name("This message is encrypted"), "a");
 
 
@@ -357,18 +404,27 @@ public class main {
         Process test = new Process("test");
         activeProcesses.add(test);
         createChannel(test, test);
-        test.input(new Zero(), "x");
+        Name ch = new Name("b2");
+        test.input(new Zero(6), "x");
         ArrayList<ChainElement> start = new ArrayList<ChainElement>();
-        ChainElement chain1 = createChainLink("O", getChannel(test, test), test, test, "x");
+        ChainElement chainA = createChainLink("O", getChannel(test,test),test,test,"x");
+        ChainElement chain1 = createChainLink("I", ch, test, test, "answer");
+        start.add(chainA);
         start.add(chain1);
+        ArrayList<ChainElement> re = new ArrayList<ChainElement>();
+        ChainElement re1 = createChainLink("I", getChannel(test,test), test,test,"x");
+        re.add(re1);
         ArrayList<ChainElement> recurse = new ArrayList<ChainElement>();
-        ChainElement recurse1 = createChainLink("I", getChannel(test, test), test, test, "y");
-        ChainElement recurse2 = createChainLink("O", getChannel(test, test), test, test, "y");
+        ChainElement recurse1 = createChainLink("O", ch, test, test, "x");
         recurse.add(recurse1);
-        recurse.add(recurse2);
-        ChainElement recurse3 = createChainLink("R", recurse);
+        ArrayList<ChainElement> recurse2 = new ArrayList<ChainElement>();
+        ChainElement recurse3 = createChainLink("O", getChannel(test,test), test, test, "x");
+        recurse2.add(recurse3);
         ArrayList<ChainElement> temp = new ArrayList<ChainElement>();
-        temp.add(recurse3);
+        ChainElement intC = createChainLink("N", test, "x", recurse, new Zero(5), recurse2);
+        re.add(intC);
+        ChainElement temp1 = createChainLink("R", re);
+        temp.add(temp1);
         ArrayList<ArrayList<ChainElement>> chain = new ArrayList<ArrayList<ChainElement>>();
         chain.add(start);
         chain.add(temp);
