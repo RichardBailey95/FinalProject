@@ -28,8 +28,8 @@ public class Process {
         return this.terms.get(output);
     }
 
-    public Encrypted encrypt(String output, Process to){
-        return new Encrypted(this.terms.get(output), keys.get(to));
+    public Encrypted encrypt(String output, String key){
+        return new Encrypted(this.terms.get(output), key);
     }
 
     public boolean decrypt(Encrypted toDecrypt, String binding, String key){
