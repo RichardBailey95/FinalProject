@@ -13,8 +13,10 @@ import java.util.UUID;
 public class Process {
     public String processName;
     public Map<String, Term> terms = new HashMap<String, Term>();
-    private Map<Process, String> keys = new HashMap<Process, String>();
+    public Map<Process, String> keys = new HashMap<Process, String>();
     public Map<String, String> symKeys = new HashMap<String, String>();
+    public Map<String, Name> channels = new HashMap<String, Name>();
+
 
     public Process(String name){
         this.processName = name;
