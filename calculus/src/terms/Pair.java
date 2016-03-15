@@ -21,6 +21,6 @@ public class Pair extends Term {
     }
 
     public String returnValue(){
-        return getFirstTerm().returnValue() + "\", \"" + getSecondTerm().returnValue();
+        return "(" + getFirstTerm().returnValue() + ", " + getSecondTerm().returnValue() + ")";
     }
 }

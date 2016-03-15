@@ -4,17 +4,24 @@ import chains.ChainElement;
 
 import java.util.*;
 
-public class main {
-    private ArrayList<ArrayList<ChainElement>> outputBuffer = new ArrayList<ArrayList<ChainElement>>();
-    private ArrayList<Process> activeProcesses = new ArrayList<Process>();
-    public Map<String, Name> channels = new HashMap<String, Name>();
-    private Scanner scan;
+public class calculus {
+    private ArrayList<ArrayList<ChainElement>> outputBuffer = new ArrayList<>();
+    private ArrayList<Process> activeProcesses = new ArrayList<>();
+    public Map<String, Name> channels = new HashMap<>();
+    public Scanner scan;
     private Random rand;
+    private calculusGUI gui;
+    public boolean proceed = false;
+    public int process = 0;
+    public int factNumber;
+    public boolean masterStop = false;
 
-    private main() {
+    private calculus() {
         System.out.println("Starting....");
+        gui = new calculusGUI(this);
         scan = new Scanner(System.in);
         rand = new Random();
+
     }
 
 
@@ -24,8 +31,13 @@ public class main {
         int success = -1;
         int continueValue = 0;
         while(!mainChain.isEmpty()){
+            if(masterStop){
+                mainChain.clear();
+                gui.updateOutput("Stopped");
+                return 0;
+            }
             if(success == iterator && continueValue != 2 && continueValue != 4){
-                System.out.println("The process has reached a block and can not continue.");
+                gui.updateOutput("The process has reached a block and can not continue.");
                 return continueValue;
             }
             if(iterator >= mainChain.size()){
@@ -62,7 +74,7 @@ public class main {
             } else if(continueValue == 5){
                 success = iterator;
             }
-                    }
+        }
         return continueValue;
     }
 
@@ -74,7 +86,7 @@ public class main {
         switch(piece.get(0).getString()) {
             case "O":
                 output = piece.get(2).getProcess().output(piece.get(4).getString());
-                toAdd = new ArrayList<ChainElement>();
+                toAdd = new ArrayList<>();
                 channel = piece.get(1).getString();
                 if(channels.containsKey(channel)) {
                     toAdd.add(new ChainElement(channels.get(channel)));
@@ -89,8 +101,15 @@ public class main {
                 toAdd.add(new ChainElement(output));
                 outputBuffer.add(toAdd);
                 toContinue = 1;
-                System.out.println(piece.get(2).getProcess().processName + " sent a term, " + piece.get(4).getString() + ", to " + piece.get(3).getProcess().processName);
-                scan.nextLine();
+                gui.updateOutput(piece.get(2).getProcess().processName + " sent a term " + piece.get(4).getString() + " on channel " + channel);
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
             case "I":
                 int j = outputBuffer.size();
@@ -101,8 +120,15 @@ public class main {
                             if (outputBuffer.get(k).get(2).getProcess() == piece.get(2).getProcess()) {
                                 outputBuffer.remove(k);
                             }
-                            System.out.println(piece.get(2).getProcess().processName + " received a term, " + piece.get(4).getString() + ", from " + piece.get(3).getProcess().processName);
-                            scan.nextLine();
+                            gui.updateOutput(piece.get(2).getProcess().processName + " received a term " + piece.get(4).getString() + " on channel " + piece.get(1).getString());
+                            while(!proceed){
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                }
+                            }
+                            proceed = false;
                             k = j;
                             toContinue = 2;
                         } else {
@@ -124,11 +150,18 @@ public class main {
                 Encrypted encrypted = piece.get(2).getProcess().encrypt(piece.get(4).getString(), key);
                 piece.get(2).getProcess().input(encrypted, piece.get(4).getString());
                 toContinue = 2;
-                System.out.println(piece.get(2).getProcess().processName + " encrypted a term, " + piece.get(4).getString());
-                scan.nextLine();
+                gui.updateOutput(piece.get(2).getProcess().processName + " encrypted a term " + piece.get(4).getString());
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
             case "D":
-                boolean temp = false;
+                boolean temp;
                 if(piece.get(1).getProcess().terms.containsKey(piece.get(3).getString())){
                     temp = piece.get(1).getProcess().decrypt((Encrypted) piece.get(1).getProcess().output(piece.get(2).getString()), piece.get(2).getString(), piece.get(1).getProcess().terms.get(piece.get(3).getString()).returnValue());
                 } else {
@@ -136,17 +169,31 @@ public class main {
                 }
                 if(temp){
                     toContinue = 2;
-                    System.out.println(piece.get(1).getProcess().processName + " decrypted a term, " + piece.get(2).getString());
-                    scan.nextLine();
+                    gui.updateOutput(piece.get(1).getProcess().processName + " decrypted a term, " + piece.get(2).getString());
+                    while(!proceed){
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    proceed = false;
                 } else {
-                    System.out.println("Could not be decrypted and terminated");
-                    scan.nextLine();
+                    gui.updateOutput("Could not be decrypted and terminated in " + piece.get(1).getProcess().processName);
+                    while(!proceed){
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    proceed = false;
                     toContinue = 3;
                 }
                 break;
             case "R":
-                ArrayList<ArrayList<ChainElement>> tempChain = new ArrayList<ArrayList<ChainElement>>();
-                ArrayList<ChainElement> chain = new ArrayList<ChainElement>(piece.get(1).getChain());
+                ArrayList<ArrayList<ChainElement>> tempChain = new ArrayList<>();
+                ArrayList<ChainElement> chain = new ArrayList<>(piece.get(1).getChain());
                 tempChain.add(chain);
                 if(parseChain(tempChain) == -1){
                     toContinue = 1;
@@ -155,13 +202,22 @@ public class main {
                 }
                 break;
             case "M":
-                if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).returnValue() == piece.get(1).getProcess().terms.get(piece.get(3).getString()).returnValue() || piece.get(1).getProcess().terms.get(piece.get(2).getString()).getNumber() == piece.get(1).getProcess().terms.get(piece.get(3).getString()).getNumber()){
-                    System.out.println("Match successful");
+                if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).returnValue().equals(piece.get(1).getProcess().terms.get(piece.get(3).getString()).returnValue())
+                        || piece.get(1).getProcess().terms.get(piece.get(2).getString()).getNumber() == piece.get(1).getProcess().terms.get(piece.get(3).getString()).getNumber()){
+                    gui.updateOutput("Match successful in " + piece.get(1).getProcess().processName);
                     toContinue = 2;
                 } else {
-                    System.out.println("Match unsuccessful");
+                    gui.updateOutput("Match unsuccessful in " + piece.get(1).getProcess().processName);
                     toContinue = 3;
                 }
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
             case "S":
                 if(piece.get(1).getProcess().terms.get(piece.get(2).getString()) instanceof Pair) {
@@ -169,29 +225,46 @@ public class main {
                     piece.get(1).getProcess().terms.remove(piece.get(2).getString());
                     piece.get(1).getProcess().input(toSplit.getFirstTerm(), piece.get(3).getString());
                     piece.get(1).getProcess().input(toSplit.getSecondTerm(), piece.get(4).getString());
-                    System.out.println("Pair splitting successful");
+                    gui.updateOutput("Pair splitting successful in " + piece.get(1).getProcess().processName);
                     toContinue = 2;
                 } else {
-                    System.out.println("Pair splitting failed");
+                    gui.updateOutput("Pair splitting failed in " + piece.get(1).getProcess().processName);
                     toContinue = 3;
                 }
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
             case "P":
                 Pair newPair = new Pair(piece.get(1).getProcess().output(piece.get(3).getString()), piece.get(1).getProcess().output(piece.get(4).getString()));
                 piece.get(1).getProcess().input(newPair, piece.get(2).getString());
                 toContinue = 2;
+                gui.updateOutput("New pair " + piece.get(2).getString() + " created in " + piece.get(1).getProcess().processName);
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
             case "N":
                 if(piece.get(1).getProcess().terms.get(piece.get(2).getString()).getNumber() == 0){
-                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<ArrayList<ChainElement>>();
-                    ArrayList<ChainElement> chainInt = new ArrayList<ChainElement>(piece.get(3).getChain());
+                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
+                    ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(3).getChain());
                     tempChainInt.add(chainInt);
                     parseChain(tempChainInt);
                     toContinue = 3;
                 } else {
                     piece.get(1).getProcess().input(new Zero(piece.get(1).getProcess().terms.get(piece.get(2).getString()).successor()), piece.get(4).getString());
-                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<ArrayList<ChainElement>>();
-                    ArrayList<ChainElement> chainInt = new ArrayList<ChainElement>(piece.get(5).getChain());
+                    ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
+                    ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(5).getChain());
                     tempChainInt.add(chainInt);
                     parseChain(tempChainInt);
                     toContinue = 2;
@@ -215,7 +288,7 @@ public class main {
                 break;
             case "Del":
                 piece.get(1).getProcess().terms.remove(piece.get(2).getString());
-                System.out.print("c ");
+                gui.updateOutput("c ");
                 toContinue = 2;
                 break;
             case "Res":
@@ -223,11 +296,21 @@ public class main {
                     case "Chan":
                         piece.get(1).getProcess().channels.put(piece.get(3).getString(), channels.get(piece.get(3).getString()));
                         channels.remove(piece.get(3).getString());
+                        gui.updateOutput("Restricted a channel " + piece.get(1).getProcess().channels.get(piece.get(3).getString()).returnValue() + " to " + piece.get(1).getProcess().processName);
                         break;
                     case "Key": // Not implemented
+                        //gui.updateOutput("Restricted a key " + keys.get(piece.get(3).getString() + " to " + piece.get(1).getProcess().processName));
                         break;
                 }
                 toContinue = 2;
+                while(!proceed){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                proceed = false;
                 break;
         }
         return toContinue;
@@ -243,7 +326,7 @@ public class main {
         ("O", channel, outputFrom, outputTo, binding)
         ("I", channel, inputFrom, inputFrom, binding)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(channel));
         output.add(new ChainElement(from));
@@ -257,7 +340,7 @@ public class main {
         /*
         ("E", channel, encryptFrom, encryptTo, binding, key)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(channel));
         output.add(new ChainElement(from));
@@ -278,7 +361,7 @@ public class main {
         ("/", process, term1, term2)
         ("Res", process, type, toRestrict)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
         output.add(new ChainElement(binding));
@@ -291,7 +374,7 @@ public class main {
         /*
         ("R", chainToReplicate)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(chain));
         return new ChainElement(output);
@@ -303,7 +386,7 @@ public class main {
         ("S", process, pair binding, first term, second term)
         ("P", process, pair binding, first term, second term)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
         output.add(new ChainElement(pairBind));
@@ -317,7 +400,7 @@ public class main {
         /*
         ("N", process, binding, 0 case process, bindingSucc, process)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
         output.add(new ChainElement(binding));
@@ -332,7 +415,7 @@ public class main {
         /*
         ("Del", process, bind)
          */
-        ArrayList<ChainElement> output = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
         output.add(new ChainElement(active));
         output.add(new ChainElement(bind));
@@ -363,22 +446,47 @@ public class main {
     }
 
     public void outputProcesses(){
-        System.out.println("\n~~~~~\n");
-        for(Process output : activeProcesses) {
-            for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
-                System.out.println(output.processName + " has a term " + entry.getKey() + ", with value \"" + entry.getValue().returnValue() + "\"");
+        gui.clearStates();
+
+        // Update channels
+        gui.updateState("Channels");
+        for(Map.Entry<String, Name> channel : channels.entrySet()){
+            String temp = " - " + channel.getValue().returnValue();
+            for(ArrayList<ChainElement> buffer : outputBuffer) {
+                if (buffer.get(0).getTerm() == channel.getValue()) {
+                    temp = temp + (" --> " + buffer.get(3).getTerm().returnValue());
+                }
             }
-            System.out.println();
+            gui.updateState(temp);
         }
-        System.out.println("~~~~~\n");
+        gui.updateState("\nPrivate Channels");
+        for(Process output : activeProcesses){
+            for(Map.Entry<String, Name> channel : output.channels.entrySet()){
+                gui.updateState(" - " + channel.getValue().returnValue() + " private to " + output.processName);
+            }
+        }
+
+
+        // Update variables
+        for(Process output : activeProcesses) {
+            gui.updateState("");
+            gui.updateState(output.processName +"\n - Keys");
+            for(Map.Entry<Process, String> keys : output.keys.entrySet()){
+                gui.updateState("   - " + keys.getValue() + " with " + keys.getKey().processName);
+            }
+            gui.updateState(" - Terms");
+            for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
+                gui.updateState("   - " + entry.getKey() + ": " + entry.getValue().returnValue());
+            }
+        }
     }
 
     public void wideMouthFrog(){
         activeProcesses.clear();
         // Agent creation
-        Process wmfA = new Process("wmfAlice");
-        Process wmfB = new Process("wmfBob");
-        Process wmfS = new Process("wmfServer");
+        Process wmfA = new Process("Alice");
+        Process wmfB = new Process("Bob");
+        Process wmfS = new Process("Server");
             activeProcesses.add(wmfA);
             activeProcesses.add(wmfB);
             activeProcesses.add(wmfS);
@@ -396,21 +504,28 @@ public class main {
         wmfA.input(new Name(wmfA.getKey(wmfB)), "KeyAB"); // The KeyAB as a variable
         wmfA.input(new Name("Message to send"), "M"); // The secret message M
         // Alice chain
-        ArrayList<ChainElement> wmfAlice = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> wmfAlice = new ArrayList<>();
         ChainElement wmfA1 = createChainLink("E", getChannel(wmfA, wmfS), wmfA, wmfS, "KeyAB", wmfA.getKey(wmfS)); // ChannelAS<{KeyAB}KeyAS>
+        ChainElement wmfAo1 = createChainLink("O", getChannel(wmfA, wmfS), wmfA, wmfS, "KeyAB");
         ChainElement wmfA2 = createChainLink("E", getChannel(wmfA, wmfB), wmfA, wmfB, "M", wmfA.getKey(wmfB)); // ChannelAB<{M}KeyAB>
+        ChainElement wmfAo2 = createChainLink("O", getChannel(wmfA, wmfB), wmfA, wmfB, "M");
         wmfAlice.add(wmfA1);
+        wmfAlice.add(wmfAo1);
         wmfAlice.add(wmfA2);
+        wmfAlice.add(wmfAo2);
         // Server chain
-        ArrayList<ChainElement> wmfServer = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> wmfServer = new ArrayList<>();
         ChainElement wmfS1 = createChainLink("I", getChannel(wmfS, wmfA), wmfS, wmfA, "x"); // ChannelAS(x)
         ChainElement wmfS2 = createChainLink("D", wmfS, "x", wmfS.getKey(wmfA)); // case x of {y}KeyAS in
         ChainElement wmfS3 = createChainLink("E", getChannel(wmfS, wmfB), wmfS, wmfB, "x", wmfS.getKey(wmfB)); // ChannelBS<{y}KeyBS>
+        ChainElement wmfS4 = createChainLink("O", getChannel(wmfS, wmfB), wmfS, wmfB, "x");
         wmfServer.add(wmfS1);
         wmfServer.add(wmfS2);
         wmfServer.add(wmfS3);
+        wmfServer.add(wmfS4);
+
         // Bob chain
-        ArrayList<ChainElement> wmfBob = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> wmfBob = new ArrayList<>();
         ChainElement wmfB1 = createChainLink("I", getChannel(wmfB, wmfS), wmfB, wmfS, "x"); // ChannelBS(b)
         ChainElement wmfB2 = createChainLink("D", wmfB, "x", wmfB.getKey(wmfS)); // case x of {y}KeyBS in
         ChainElement wmfB3 = createChainLink("I", getChannel(wmfB, wmfA), wmfB, wmfA, "M"); // ChannelAB(z)
@@ -420,14 +535,37 @@ public class main {
         wmfBob.add(wmfB3);
         wmfBob.add(wmfB4);
         // Main chain
-        ArrayList<ArrayList<ChainElement>> wmfChain = new ArrayList<ArrayList<ChainElement>>();
+        ArrayList<ArrayList<ChainElement>> wmfChain = new ArrayList<>();
         wmfChain.add(wmfAlice);
         wmfChain.add(wmfServer);
         wmfChain.add(wmfBob);
         // Execute
         outputProcesses();
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+
         parseChain(wmfChain);
+
         outputProcesses();
+        gui.updateOutput("The protocol has finished");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
     }
 
     public void mainTest(){
@@ -478,6 +616,7 @@ public class main {
         // Test communication between two processes and an intruder watching
         ChainElement restrict = createChainLink("Res", a, "Chan", getChannel(a,b));
         ChainElement test = createChainLink("E", getChannel(a, b), a, b, "a", a.getKey(b));
+        ChainElement ns = createChainLink("O", getChannel(a,b),a,b,"a");
         ChainElement test2 = createChainLink("I", getChannel(b, a), b, a, "y");
         ChainElement match = createChainLink("M", b, "y", "m");
         ChainElement decryptTest2 = createChainLink("D", b, "y", b.getKey(a));
@@ -492,11 +631,12 @@ public class main {
 
 
         // Execute the processes. Alice and Bob run in composition
-        ArrayList<ChainElement> aliceProcess = new ArrayList<ChainElement>();
-        ArrayList<ChainElement> bobProcess = new ArrayList<ChainElement>();
-        ArrayList<ChainElement> intruderProcess = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> aliceProcess = new ArrayList<>();
+        ArrayList<ChainElement> bobProcess = new ArrayList<>();
+        ArrayList<ChainElement> intruderProcess = new ArrayList<>();
         aliceProcess.add(restrict);
         aliceProcess.add(test);
+        aliceProcess.add(ns);
         aliceProcess.add(accept);
         intruderProcess.add(intrude);
         intruderProcess.add(intrude2);
@@ -508,68 +648,115 @@ public class main {
        // aliceProcess.add(replicate);
         bobProcess.add(test4);
         bobProcess.add(pairSplit);
-        ArrayList<ArrayList<ChainElement>> tester = new ArrayList<ArrayList<ChainElement>>();
+        ArrayList<ArrayList<ChainElement>> tester = new ArrayList<>();
         tester.add(aliceProcess);
         tester.add(bobProcess);
 //        tester.add(intruderProcess);
-        parseChain(tester);
-
-
-        // See what terms the processes have
         outputProcesses();
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+
+        parseChain(tester);
+        gui.updateState("The protocol has finished");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
     }
 
     public void factorial(int number){
-        Process test = new Process("test");
+        activeProcesses.clear();
+        Process test = new Process("Factorial");
         activeProcesses.add(test);
-        createChannel(test, test);
-        Name ch = createChannel("b2");
-        test.input(new Pair(new Zero(number), new Zero(1)), "x");
-        ArrayList<ChainElement> start = new ArrayList<ChainElement>();
-        ChainElement chainA = createChainLink("O", getChannel(test,test),test,test,"x");
-        ChainElement chain1 = createChainLink("I", "b2", test, test, "answer");
-        ChainElement del = createChainLink("Del", test, "a");
-        ChainElement del2 = createChainLink("Del", test, "b");
-        ChainElement del3 = createChainLink("Del", test, "x");
-        ChainElement del4 = createChainLink("Del", test, "z");
+        createChannel("a");
+        createChannel("b");
+        test.input(new Pair(new Zero(number), new Zero(1)), "input");
+        ArrayList<ChainElement> start = new ArrayList<>();
+        ChainElement chainA = createChainLink("O", "a", test, test, "input");
+        ChainElement chain1 = createChainLink("I", "b", test, test, "answer");
+
         start.add(chainA);
         start.add(chain1);
-        start.add(del);
-        start.add(del2);
-        start.add(del3);
-        start.add(del4);
-        ArrayList<ChainElement> re = new ArrayList<ChainElement>();
-        ChainElement re1 = createChainLink("I", getChannel(test,test), test,test,"x");
+
+//        ChainElement del = createChainLink("Del", test, "a");
+//        ChainElement del2 = createChainLink("Del", test, "b");
+//        ChainElement del3 = createChainLink("Del", test, "x");
+//        ChainElement del4 = createChainLink("Del", test, "z");
+//        start.add(del);
+//        start.add(del2);
+//        start.add(del3);
+//        start.add(del4);
+        ArrayList<ChainElement> re = new ArrayList<>();
+        ChainElement re1 = createChainLink("I", "a", test, test, "x");
         ChainElement re2 = createChainLink("S", test, "x", "a", "b");
         re.add(re1);
         re.add(re2);
-        ArrayList<ChainElement> recurse = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> recurse = new ArrayList<>();
         ChainElement recurse1 = createChainLink("O", "b2", test, test, "b");
         recurse.add(recurse1);
-        ArrayList<ChainElement> recurse2 = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> recurse2 = new ArrayList<>();
         ChainElement mult = createChainLink("*", test, "a", "b");
-        ChainElement recurse3 = createChainLink("P", getChannel(test,test), test, test, "z", "a");
+        ChainElement recurse3 = createChainLink("P", test, "z", "z", "a");
+        ChainElement ns = createChainLink("O", "a", test, test, "z");
         recurse2.add(mult);
         recurse2.add(recurse3);
-        ArrayList<ChainElement> temp = new ArrayList<ChainElement>();
+        recurse2.add(ns);
+        ArrayList<ChainElement> temp = new ArrayList<>();
         ChainElement intC = createChainLink("N", test, "a", recurse, "z", recurse2);
         re.add(intC);
         ChainElement temp1 = createChainLink("R", re);
         temp.add(temp1);
-        ArrayList<ArrayList<ChainElement>> chain = new ArrayList<ArrayList<ChainElement>>();
+        ArrayList<ArrayList<ChainElement>> chain = new ArrayList<>();
         chain.add(start);
         chain.add(temp);
         outputProcesses();
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+
         parseChain(chain);
+
         outputProcesses();
+        gui.updateOutput("The protocol has finished");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
     }
 
     public void needhamSchroeder(){
         activeProcesses.clear();
 
-        Process nsA = new Process("NSAlice");
-        Process nsB = new Process("NSBob");
-        Process nsS = new Process("NSServer");
+        Process nsA = new Process("Alice");
+        Process nsB = new Process("Bob");
+        Process nsS = new Process("Server");
 
             activeProcesses.add(nsA);
             activeProcesses.add(nsB);
@@ -596,7 +783,7 @@ public class main {
         nsB.input(new Zero(rand.nextInt(500)), "NonceB");
         nsS.input(new Name(nsS.getPublicKey(nsA, nsB)), "KeyAB");
 
-        ArrayList<ChainElement> nsAChain = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> nsAChain = new ArrayList<>();
         ChainElement nsA1 = createChainLink("P", nsA, "pairA", "A", "B");
         ChainElement nsA2 = createChainLink("P", nsA, "out", "pairA", "NonceA");
         ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), nsA, nsS, "out");
@@ -630,23 +817,23 @@ public class main {
         nsAChain.add(nsA15);
 
         // Clean up extra to make pretty
-        ChainElement del1 = createChainLink("Del", nsA, "pairA");
-        ChainElement del2 = createChainLink("Del", nsA, "temp");
-        ChainElement del3 = createChainLink("Del", nsA, "d");
-        ChainElement del4 = createChainLink("Del", nsA, "x");
-        ChainElement del5 = createChainLink("Del", nsA, "out");
-        ChainElement del6 = createChainLink("Del", nsA, "a");
-        ChainElement del7 = createChainLink("Del", nsA, "c");
-        nsAChain.add(del1);
-        nsAChain.add(del2);
-        nsAChain.add(del3);
-        nsAChain.add(del4);
-        nsAChain.add(del5);
-        nsAChain.add(del6);
-        nsAChain.add(del7);
+//        ChainElement del1 = createChainLink("Del", nsA, "pairA");
+//        ChainElement del2 = createChainLink("Del", nsA, "temp");
+//        ChainElement del3 = createChainLink("Del", nsA, "d");
+//        ChainElement del4 = createChainLink("Del", nsA, "x");
+//        ChainElement del5 = createChainLink("Del", nsA, "out");
+//        ChainElement del6 = createChainLink("Del", nsA, "a");
+//        ChainElement del7 = createChainLink("Del", nsA, "c");
+//        nsAChain.add(del1);
+//        nsAChain.add(del2);
+//        nsAChain.add(del3);
+//        nsAChain.add(del4);
+//        nsAChain.add(del5);
+//        nsAChain.add(del6);
+//        nsAChain.add(del7);
 
 
-        ArrayList<ChainElement> nsSChain = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> nsSChain = new ArrayList<>();
         ChainElement nsS1 = createChainLink("I", getChannel(nsS, nsA), nsS, nsA, "temp");
         ChainElement nsS2 = createChainLink("S", nsS, "temp", "temp", "c");
         ChainElement nsS3 = createChainLink("S", nsS, "temp", "a", "b");
@@ -668,17 +855,17 @@ public class main {
         nsSChain.add(nsS9);
         nsSChain.add(nsS10);
 
-        ChainElement delS = createChainLink("Del", nsS, "a");
-        ChainElement delS1 = createChainLink("Del", nsS, "b");
-        ChainElement delS2 = createChainLink("Del", nsS, "c");
-        ChainElement delS3 = createChainLink("Del", nsS, "d");
-        nsAChain.add(delS3);
-        nsAChain.add(delS2);
-        nsAChain.add(delS);
-        nsAChain.add(delS1);
+//        ChainElement delS = createChainLink("Del", nsS, "a");
+//        ChainElement delS1 = createChainLink("Del", nsS, "b");
+//        ChainElement delS2 = createChainLink("Del", nsS, "c");
+//        ChainElement delS3 = createChainLink("Del", nsS, "d");
+//        nsAChain.add(delS3);
+//        nsAChain.add(delS2);
+//        nsAChain.add(delS);
+//        nsAChain.add(delS1);
 
 
-        ArrayList<ChainElement> nsBChain = new ArrayList<ChainElement>();
+        ArrayList<ChainElement> nsBChain = new ArrayList<>();
         ChainElement nsB1 = createChainLink("I", getChannel(nsA, nsB), nsB, nsA, "x");
         ChainElement nsB2 = createChainLink("D", nsB, "x", nsB.getKey(nsS));
         ChainElement nsB3 = createChainLink("S", nsB, "x", "y", "z");
@@ -701,38 +888,84 @@ public class main {
         nsBChain.add(nsB10);
 
         // Clean up
-        ChainElement delB = createChainLink("Del", nsB, "x");
-        ChainElement delB1 = createChainLink("Del", nsB, "z");
-        nsAChain.add(delB);
-        nsAChain.add(delB1);
+//        ChainElement delB = createChainLink("Del", nsB, "x");
+//        ChainElement delB1 = createChainLink("Del", nsB, "z");
+//        nsAChain.add(delB);
+//        nsAChain.add(delB1);
 
-        ArrayList<ArrayList<ChainElement>> nsChain = new ArrayList<ArrayList<ChainElement>>();
+        ArrayList<ArrayList<ChainElement>> nsChain = new ArrayList<>();
         nsChain.add(nsAChain);
         nsChain.add(nsSChain);
         nsChain.add(nsBChain);
 
         outputProcesses();
-        parseChain(nsChain);
-        outputProcesses();
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
 
+        parseChain(nsChain);
+
+        outputProcesses();
+        gui.updateOutput("The protocol has been successful.");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
+    }
+
+    public void run(){
+        switch(process){
+            case(1):
+                wideMouthFrog();
+                process = 0;
+                break;
+            case(2):
+                needhamSchroeder();
+                process = 0;
+                break;
+            case(3):
+                factorial(factNumber);
+                process = 0;
+                break;
+            case(4):
+                mainTest();
+                process = 0;
+                break;
+        }
     }
 
     public static void main(String[] args){
-        main letsDoThis = new main();
+        calculus runCalc = new calculus();
 
+        while(true){
+            runCalc.run();
+        }
         // Demonstrate the wide mouth frog protocol
-        //letsDoThis.wideMouthFrog();
+        //runCalc.wideMouthFrog();
 
         // Demonstrate the Needham Schroeder protocl
-        letsDoThis.needhamSchroeder();
+        //runCalc.needhamSchroeder();
 
         // Test recursion
-        //letsDoThis.factorial(5);
+        //runCalc.factorial(5);
 
         // Test calculus
-        //letsDoThis.mainTest();
+        //runCalc.mainTest();
 
-        System.exit(0);
+      //  System.exit(0);
 
     }
 }
