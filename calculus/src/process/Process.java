@@ -34,9 +34,10 @@ public class Process {
         return new Encrypted(this.terms.get(output), key);
     }
 
-    public boolean decrypt(Encrypted toDecrypt, String binding, String key){
+    public boolean decrypt(String binding, String key, String decryptTo){
+        Encrypted toDecrypt = (Encrypted) terms.get(binding);
         if(toDecrypt.key == key){
-            this.terms.put(binding, toDecrypt.term);
+            this.terms.put(decryptTo, toDecrypt.term);
             return true;
         }
         this.terms.put(binding, toDecrypt);
