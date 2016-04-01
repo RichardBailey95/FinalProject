@@ -8,6 +8,7 @@
     <properties>
       <background color="-4866627"/>
       <foreground color="-4866627"/>
+      <maximumSize width="1920" height="1080"/>
       <preferredSize width="825" height="520"/>
       <requestFocusEnabled value="true"/>
     </properties>
@@ -113,21 +114,21 @@
               <text value="General Test"/>
             </properties>
           </component>
-          <component id="fb02f" class="javax.swing.JButton" binding="createOwn">
+          <component id="fb02f" class="javax.swing.JButton" binding="createOwnButton">
             <constraints>
               <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <enabled value="false"/>
+              <enabled value="true"/>
               <text value="Create Your Own"/>
             </properties>
           </component>
-          <component id="86c57" class="javax.swing.JButton" binding="needhamSchroederIntruder">
+          <component id="86c57" class="javax.swing.JButton" binding="needhamSchroederIntruderButton">
             <constraints>
               <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <enabled value="false"/>
+              <enabled value="true"/>
               <text value="Needham Schroeder Intruder"/>
             </properties>
           </component>

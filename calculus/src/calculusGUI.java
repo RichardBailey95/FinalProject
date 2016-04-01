@@ -3,8 +3,6 @@ import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Created by Richard on 14/03/2016.
@@ -20,8 +18,8 @@ public class calculusGUI extends JFrame {
     private JTextField factInput;
     public JButton stopButton;
     private JButton mainTestButton;
-    private JButton createOwn;
-    private JButton needhamSchroederIntruder;
+    private JButton createOwnButton;
+    private JButton needhamSchroederIntruderButton;
     private calculus active;
 
     public calculusGUI(calculus program) {
@@ -45,8 +43,24 @@ public class calculusGUI extends JFrame {
                 factorialExampleButton.setEnabled(false);
                 mainTestButton.setEnabled(false);
                 factInput.setEnabled(false);
+                needhamSchroederIntruderButton.setEnabled(false);
             }
         });
+
+        needhamSchroederIntruderButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                active.process = 5;
+                stopButton.setEnabled(true);
+                proceedButton.setEnabled(true);
+                needhamSchroederButton.setEnabled(false);
+                wideMouthFrogButton.setEnabled(false);
+                factorialExampleButton.setEnabled(false);
+                mainTestButton.setEnabled(false);
+                factInput.setEnabled(false);
+            }
+        });
+
 
         wideMouthFrogButton.addActionListener(new ActionListener() {
             @Override
@@ -58,6 +72,7 @@ public class calculusGUI extends JFrame {
                 factorialExampleButton.setEnabled(false);
                 mainTestButton.setEnabled(false);
                 factInput.setEnabled(false);
+                needhamSchroederIntruderButton.setEnabled(false);
             }
         });
 
@@ -71,6 +86,7 @@ public class calculusGUI extends JFrame {
                 needhamSchroederButton.setEnabled(false);
                 wideMouthFrogButton.setEnabled(false);
                 mainTestButton.setEnabled(false);
+                needhamSchroederIntruderButton.setEnabled(false);
             }
         });
 
@@ -84,6 +100,7 @@ public class calculusGUI extends JFrame {
                 wideMouthFrogButton.setEnabled(false);
                 factorialExampleButton.setEnabled(false);
                 factInput.setEnabled(false);
+                needhamSchroederIntruderButton.setEnabled(false);
             }
         });
 
@@ -116,6 +133,12 @@ public class calculusGUI extends JFrame {
                 active.proceed = true;
                 proceedButton.setText("Clear");
                 stopButton.setEnabled(false);
+            }
+        });
+        createOwnButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                active.process = 6;
             }
         });
     }
@@ -158,6 +181,7 @@ public class calculusGUI extends JFrame {
         mainWindow.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 3, new Insets(5, 5, 5, 5), -1, -1));
         mainWindow.setBackground(new Color(-4866627));
         mainWindow.setForeground(new Color(-4866627));
+        mainWindow.setMaximumSize(new Dimension(1920, 1080));
         mainWindow.setPreferredSize(new Dimension(825, 520));
         mainWindow.setRequestFocusEnabled(true);
         final JPanel panel1 = new JPanel();
@@ -202,14 +226,14 @@ public class calculusGUI extends JFrame {
         mainTestButton.setEnabled(true);
         mainTestButton.setText("General Test");
         panel2.add(mainTestButton, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        createOwn = new JButton();
-        createOwn.setEnabled(false);
-        createOwn.setText("Create Your Own");
-        panel2.add(createOwn, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        needhamSchroederIntruder = new JButton();
-        needhamSchroederIntruder.setEnabled(false);
-        needhamSchroederIntruder.setText("Needham Schroeder Intruder");
-        panel2.add(needhamSchroederIntruder, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        createOwnButton = new JButton();
+        createOwnButton.setEnabled(true);
+        createOwnButton.setText("Create Your Own");
+        panel2.add(createOwnButton, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        needhamSchroederIntruderButton = new JButton();
+        needhamSchroederIntruderButton.setEnabled(true);
+        needhamSchroederIntruderButton.setText("Needham Schroeder Intruder");
+        panel2.add(needhamSchroederIntruderButton, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         panel3.setBackground(new Color(-4866627));

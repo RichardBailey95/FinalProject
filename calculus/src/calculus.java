@@ -11,6 +11,7 @@ public class calculus {
     public Scanner scan;
     private Random rand;
     private calculusGUI gui;
+    private createYourOwn createGui;
     public boolean proceed = false;
     public int process = 0;
     public int factNumber;
@@ -88,23 +89,29 @@ public class calculus {
         String channel;
         switch(piece.get(0).getString()) {
             case "O":
-                String outputBind = piece.get(3).getString();
+                String outputBind = piece.get(2).getString();
                 output = activeProcess.output(outputBind);
                 toAdd = new ArrayList<>();
                 channel = piece.get(1).getString();
-                Process sendingTo = piece.get(2).getProcess();
                 if(channels.containsKey(channel)) {
                     toAdd.add(new ChainElement(channels.get(channel)));
                 } else if (activeProcess.channels.containsKey(channel)){
                     toAdd.add(new ChainElement(activeProcess.channels.get(channel)));
                 } else {
-                    createChannel(activeProcess, sendingTo);
-                    toAdd.add(new ChainElement(channels.get(channel)));
+                    toContinue = 3;
+                    break;
                 }
-                toAdd.add(new ChainElement(activeProcess));
-                toAdd.add(piece.get(2));
                 toAdd.add(new ChainElement(output));
-                outputBuffer.add(toAdd);
+                Boolean added = false;
+                for(ArrayList<ChainElement> buffer : outputBuffer){
+                    if(buffer.get(0).getTerm() == toAdd.get(0).getTerm()){
+                        buffer.add(1, toAdd.get(1));
+                        added = true;
+                    }
+                }
+                if(!added){
+                    outputBuffer.add(toAdd);
+                }
                 toContinue = 1;
                 gui.updateOutput(activeProcess.processName + " sent a term " + outputBind + " on channel " + channel);
                 while(!proceed){
@@ -118,16 +125,13 @@ public class calculus {
                 break;
             case "I":
                 channel = piece.get(1).getString();
-                String inputBind = piece.get(3).getString();
+                String inputBind = piece.get(2).getString();
 
                 int j = outputBuffer.size();
                 for (int k = 0; k < j; k++) {
                     if (channels.containsKey(channel) || activeProcess.channels.containsKey(channel)) {
                         if (outputBuffer.get(k).get(0).getTerm() == channels.get(channel) || outputBuffer.get(k).get(0).getTerm() == activeProcess.channels.get(channel)) {
-                            activeProcess.input(outputBuffer.get(k).get(3).getTerm(), inputBind);
-                            if (outputBuffer.get(k).get(2).getProcess() == activeProcess) {
-                                outputBuffer.remove(k);
-                            }
+                            activeProcess.input(outputBuffer.get(k).get(1).getTerm(), inputBind);
                             gui.updateOutput(activeProcess.processName + " received a term " + inputBind + " on channel " + channel);
                             while(!proceed){
                                 try {
@@ -357,23 +361,11 @@ public class calculus {
 
 
     // Input, Output
-    public ChainElement createChainLink(String identifier, String channel, Process communication, String binding){
+    public ChainElement createChainLink(String identifier, String channel, String binding){
         /*
-        ("O", channel, outputTo, binding)
-        ("I", channel, inputFrom, binding)
-         */
-        ArrayList<ChainElement> output = new ArrayList<>();
-        output.add(new ChainElement(identifier));
-        output.add(new ChainElement(channel));
-        output.add(new ChainElement(communication));
-        output.add(new ChainElement(binding));
-        return new ChainElement(output);
-    }
-
-    // Encrypt, Match, Arithmetic, Restriction
-    public ChainElement createChainLink(String identifier, String binding, String key){
-        /*
-        ("E", binding, key)
+        ("O", channel, binding)
+        ("I", channel, binding)
+        "E", binding, key)
         ("M", binding1, binding2)
         ("*", term1, term2)
         ("+", term1, term2)
@@ -383,8 +375,8 @@ public class calculus {
          */
         ArrayList<ChainElement> output = new ArrayList<>();
         output.add(new ChainElement(identifier));
+        output.add(new ChainElement(channel));
         output.add(new ChainElement(binding));
-        output.add(new ChainElement(key));
         return new ChainElement(output);
     }
 
@@ -471,7 +463,7 @@ public class calculus {
             String temp = " - " + channel.getValue().returnValue();
             for(ArrayList<ChainElement> buffer : outputBuffer) {
                 if (buffer.get(0).getTerm() == channel.getValue()) {
-                    temp = temp + (" --> " + buffer.get(3).getTerm().returnValue());
+                    temp = temp + (" --> " + buffer.get(1).getTerm().returnValue());
                 }
             }
             gui.updateState(temp);
@@ -523,9 +515,9 @@ public class calculus {
         // Alice chain
         ArrayList<ChainElement> wmfAlice = new ArrayList<>();
         ChainElement wmfA1 = createChainLink("E", "KeyAB", wmfA.getKey(wmfS)); // ChannelAS<{KeyAB}KeyAS>
-        ChainElement wmfAo1 = createChainLink("O", getChannel(wmfA, wmfS), wmfS, "KeyAB");
+        ChainElement wmfAo1 = createChainLink("O", getChannel(wmfA, wmfS), "KeyAB");
         ChainElement wmfA2 = createChainLink("E", "M", wmfA.getKey(wmfB)); // ChannelAB<{M}KeyAB>
-        ChainElement wmfAo2 = createChainLink("O", getChannel(wmfA, wmfB), wmfB, "M");
+        ChainElement wmfAo2 = createChainLink("O", getChannel(wmfA, wmfB), "M");
         wmfAlice.add(new ChainElement(wmfA));
         wmfAlice.add(wmfA1);
         wmfAlice.add(wmfAo1);
@@ -533,10 +525,10 @@ public class calculus {
         wmfAlice.add(wmfAo2);
         // Server chain
         ArrayList<ChainElement> wmfServer = new ArrayList<>();
-        ChainElement wmfS1 = createChainLink("I", getChannel(wmfS, wmfA), wmfA, "x"); // ChannelAS(x)
+        ChainElement wmfS1 = createChainLink("I", getChannel(wmfS, wmfA), "x"); // ChannelAS(x)
         ChainElement wmfS2 = createChainLink("D", "x", wmfS.getKey(wmfA), "y"); // case x of {y}KeyAS in
         ChainElement wmfS3 = createChainLink("E", "y", wmfS.getKey(wmfB)); // ChannelBS<{y}KeyBS>
-        ChainElement wmfS4 = createChainLink("O", getChannel(wmfS, wmfB), wmfB, "y");
+        ChainElement wmfS4 = createChainLink("O", getChannel(wmfS, wmfB), "y");
         wmfServer.add(new ChainElement(wmfB));
         wmfServer.add(wmfS1);
         wmfServer.add(wmfS2);
@@ -545,9 +537,9 @@ public class calculus {
 
         // Bob chain
         ArrayList<ChainElement> wmfBob = new ArrayList<>();
-        ChainElement wmfB1 = createChainLink("I", getChannel(wmfB, wmfS), wmfS, "x"); // ChannelBS(b)
+        ChainElement wmfB1 = createChainLink("I", getChannel(wmfB, wmfS), "x"); // ChannelBS(b)
         ChainElement wmfB2 = createChainLink("D", "x", wmfB.getKey(wmfS), "y"); // case x of {y}KeyBS in
-        ChainElement wmfB3 = createChainLink("I", getChannel(wmfB, wmfA), wmfA, "z"); // ChannelAB(z)
+        ChainElement wmfB3 = createChainLink("I", getChannel(wmfB, wmfA), "z"); // ChannelAB(z)
         ChainElement wmfB4 = createChainLink("D", "z", "y", "M"); // case z of {M}y in F(w)
         wmfBob.add(new ChainElement(wmfB));
         wmfBob.add(wmfB1);
@@ -636,18 +628,18 @@ public class calculus {
         // Test communication between two processes and an intruder watching
         ChainElement restrict = createChainLink("Res", "Chan", getChannel(a,b));
         ChainElement test = createChainLink("E", "a", a.getKey(b));
-        ChainElement ns = createChainLink("O", getChannel(a,b),b,"a");
-        ChainElement test2 = createChainLink("I", getChannel(b, a), a, "y");
+        ChainElement ns = createChainLink("O", getChannel(a,b), "a");
+        ChainElement test2 = createChainLink("I", getChannel(b, a), "y");
         ChainElement match = createChainLink("M", "y", "m");
         ChainElement decryptTest2 = createChainLink("D", "y", b.getKey(a), "y");
-        ChainElement reply = createChainLink("O", getChannel(b, a), a, "x");
-        ChainElement accept = createChainLink("I", getChannel(a, b), b, "a");
-        ChainElement test3 = createChainLink("O", getChannel(a, b), b, "y");
+        ChainElement reply = createChainLink("O", getChannel(b, a), "x");
+        ChainElement accept = createChainLink("I", getChannel(a, b), "a");
+        ChainElement test3 = createChainLink("O", getChannel(a, b), "y");
         //ChainElement replicate = createChainLink("R", test3);
-        ChainElement test4 = createChainLink("I", getChannel(b, a), a, "z");
+        ChainElement test4 = createChainLink("I", getChannel(b, a), "z");
         ChainElement pairSplit = createChainLink("S", "z", "za", "zb");
-        ChainElement intrude = createChainLink("I", getChannel(a, b), a, "x");
-        ChainElement intrude2 = createChainLink("I", getChannel(a, b), a, "y");
+        ChainElement intrude = createChainLink("I", getChannel(a, b), "x");
+        ChainElement intrude2 = createChainLink("I", getChannel(a, b), "y");
 
 
         // Execute the processes. Alice and Bob run in composition
@@ -706,11 +698,11 @@ public class calculus {
         Process test = new Process("Factorial");
         activeProcesses.add(test);
         createChannel("a");
-        createChannel("b");
+        createChannel("b2");
         test.input(new Pair(new Zero(number), new Zero(1)), "input");
         ArrayList<ChainElement> start = new ArrayList<>();
-        ChainElement chainA = createChainLink("O", "a", test, "input");
-        ChainElement chain1 = createChainLink("I", "b", test, "answer");
+        ChainElement chainA = createChainLink("O", "a", "input");
+        ChainElement chain1 = createChainLink("I", "b2", "answer");
 
         start.add(new ChainElement(test));
         start.add(chainA);
@@ -725,19 +717,19 @@ public class calculus {
 //        start.add(del3);
 //        start.add(del4);
         ArrayList<ChainElement> re = new ArrayList<>();
-        ChainElement re1 = createChainLink("I", "a", test, "x");
+        ChainElement re1 = createChainLink("I", "a", "x");
         ChainElement re2 = createChainLink("S", "x", "a", "b");
         re.add(new ChainElement(test));
         re.add(re1);
         re.add(re2);
         ArrayList<ChainElement> recurse = new ArrayList<>();
-        ChainElement recurse1 = createChainLink("O", "b2", test, "b");
+        ChainElement recurse1 = createChainLink("O", "b2", "b");
         recurse.add(new ChainElement(test));
         recurse.add(recurse1);
         ArrayList<ChainElement> recurse2 = new ArrayList<>();
         ChainElement mult = createChainLink("*", "a", "b");
         ChainElement recurse3 = createChainLink("P", "z", "z", "a");
-        ChainElement ns = createChainLink("O", "a", test, "z");
+        ChainElement ns = createChainLink("O", "a", "z");
         recurse2.add(new ChainElement(test));
         recurse2.add(mult);
         recurse2.add(recurse3);
@@ -814,19 +806,19 @@ public class calculus {
         ArrayList<ChainElement> nsAChain = new ArrayList<>();
         ChainElement nsA1 = createChainLink("P", "pairA", "A", "B");
         ChainElement nsA2 = createChainLink("P", "out", "pairA", "NonceA");
-        ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), nsS, "out");
-        ChainElement nsA4 = createChainLink("I", getChannel(nsA, nsS), nsS, "x");
+        ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), "out");
+        ChainElement nsA4 = createChainLink("I", getChannel(nsA, nsS), "x");
         ChainElement nsA5 = createChainLink("D", "x", nsA.getKey(nsS), "y");
         ChainElement nsA6 = createChainLink("S", "y", "a", "temp");
         ChainElement nsA7 = createChainLink("S", "temp", "b", "temp");
         ChainElement nsA8 = createChainLink("S", "temp", "c", "d");
         ChainElement nsA9 = createChainLink("M", "a", "NonceA");
-        ChainElement nsA10 = createChainLink("O", getChannel(nsA, nsB), nsB, "d");
-        ChainElement nsA11 = createChainLink("I", getChannel(nsA, nsB), nsB, "x");
+        ChainElement nsA10 = createChainLink("O", getChannel(nsA, nsB), "d");
+        ChainElement nsA11 = createChainLink("I", getChannel(nsA, nsB), "x");
         ChainElement nsA12 = createChainLink("D", "x", "b", "e");
         ChainElement nsA13 = createChainLink("+", "e", "1");
         ChainElement nsA14 = createChainLink("E", "e", "b");
-        ChainElement nsA15 = createChainLink("O", getChannel(nsA, nsB), nsB, "e");
+        ChainElement nsA15 = createChainLink("O", getChannel(nsA, nsB), "e");
 
         nsAChain.add(new ChainElement(nsA));
         nsAChain.add(nsA1);
@@ -863,7 +855,7 @@ public class calculus {
 
 
         ArrayList<ChainElement> nsSChain = new ArrayList<>();
-        ChainElement nsS1 = createChainLink("I", getChannel(nsS, nsA), nsA, "temp");
+        ChainElement nsS1 = createChainLink("I", getChannel(nsS, nsA), "temp");
         ChainElement nsS2 = createChainLink("S", "temp", "temp", "c");
         ChainElement nsS3 = createChainLink("S", "temp", "a", "b");
         ChainElement nsS4 = createChainLink("P", "d", "KeyAB", "a");
@@ -872,7 +864,7 @@ public class calculus {
         ChainElement nsS7 = createChainLink("P", "out", "KeyAB", "out");
         ChainElement nsS8 = createChainLink("P", "out", "c", "out");
         ChainElement nsS9 = createChainLink("E", "out", nsS.getKey(nsA));
-        ChainElement nsS10 = createChainLink("O", getChannel(nsA, nsS), nsA, "out");
+        ChainElement nsS10 = createChainLink("O", getChannel(nsA, nsS), "out");
 
         nsSChain.add(new ChainElement(nsS));
         nsSChain.add(nsS1);
@@ -897,12 +889,12 @@ public class calculus {
 
 
         ArrayList<ChainElement> nsBChain = new ArrayList<>();
-        ChainElement nsB1 = createChainLink("I", getChannel(nsA, nsB), nsA, "x");
+        ChainElement nsB1 = createChainLink("I", getChannel(nsA, nsB), "x");
         ChainElement nsB2 = createChainLink("D", "x", nsB.getKey(nsS), "p");
         ChainElement nsB3 = createChainLink("S", "p", "y", "z");
         ChainElement nsB4 = createChainLink("E", "NonceB", "y");
-        ChainElement nsB5 = createChainLink("O", getChannel(nsA, nsB), nsA, "NonceB");
-        ChainElement nsB6 = createChainLink("I", getChannel(nsA, nsB), nsA, "x");
+        ChainElement nsB5 = createChainLink("O", getChannel(nsA, nsB), "NonceB");
+        ChainElement nsB6 = createChainLink("I", getChannel(nsA, nsB), "x");
         ChainElement nsB7 = createChainLink("D", "x", "y", "e");
         ChainElement nsB8 = createChainLink("D", "NonceB", "y", "NonceB");
         ChainElement nsB9 = createChainLink("+", "NonceB", "1");
@@ -959,6 +951,214 @@ public class calculus {
         gui.clearStates();
     }
 
+    public void needhamSchroederIntruder(){
+        activeProcesses.clear();
+
+        Process nsA = new Process("Alice");
+        Process nsB = new Process("Bob");
+        Process nsS = new Process("Server");
+        Process nsI = new Process("Intruder");
+
+        activeProcesses.add(nsA);
+        activeProcesses.add(nsB);
+        activeProcesses.add(nsS);
+        activeProcesses.add(nsI);
+
+        createChannel(nsA, nsS);
+        createChannel(nsB, nsS);
+        createChannel(nsA, nsB);
+        createChannel(nsS, nsS);
+
+        nsA.setKey(nsA.generateKey(nsA, nsS), nsS); // KeyAS
+        nsS.setKey(nsA.getKey(nsS), nsA);
+        nsB.setKey(nsB.generateKey(nsB, nsS), nsS); // KeyBS
+        nsS.setKey(nsB.getKey(nsS), nsB);
+        nsS.generateKey(nsA, nsB); // KeyAB
+
+            Zero one = new Zero(1);
+        nsA.input(one, "1");
+        nsB.input(one, "1");
+        nsI.input(one, "1");
+
+        nsA.input(new Name(nsA.processName), "A");
+        nsA.input(new Name(nsB.processName), "B");
+        nsA.input(new Zero(rand.nextInt(500)), "NonceA");
+        nsB.input(new Zero(rand.nextInt(500)), "NonceB");
+        nsS.input(new Name(nsS.getPublicKey(nsA, nsB)), "KeyAB");
+        nsI.input(new Name(nsI.generateKey(nsA, nsB)), "x");
+        nsI.input(new Name(nsA.processName), "y");
+
+        ArrayList<ChainElement> nsAChain = new ArrayList<>();
+        ChainElement nsA1 = createChainLink("P", "pairA", "A", "B");
+        ChainElement nsA2 = createChainLink("P", "out", "pairA", "NonceA");
+        ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), "out");
+        ChainElement nsA4 = createChainLink("I", getChannel(nsA, nsS), "x");
+        ChainElement nsA5 = createChainLink("D", "x", nsA.getKey(nsS), "y");
+        ChainElement nsA6 = createChainLink("S", "y", "a", "temp");
+        ChainElement nsA7 = createChainLink("S", "temp", "b", "temp");
+        ChainElement nsA8 = createChainLink("S", "temp", "c", "d");
+        ChainElement nsA9 = createChainLink("M", "a", "NonceA");
+
+//        ChainElement nsA10 = createChainLink("O", getChannel(nsA, nsB), nsB, "d");
+//        ChainElement nsA11 = createChainLink("I", getChannel(nsA, nsB), nsB, "x");
+//        ChainElement nsA12 = createChainLink("D", "x", "b", "e");
+//        ChainElement nsA13 = createChainLink("+", "e", "1");
+//        ChainElement nsA14 = createChainLink("E", "e", "b");
+//        ChainElement nsA15 = createChainLink("O", getChannel(nsA, nsB), nsB, "e");
+
+        nsAChain.add(new ChainElement(nsA));
+        nsAChain.add(nsA1);
+        nsAChain.add(nsA2);
+        nsAChain.add(nsA3);
+        nsAChain.add(nsA4);
+        nsAChain.add(nsA5);
+        nsAChain.add(nsA6);
+        nsAChain.add(nsA7);
+        nsAChain.add(nsA8);
+        nsAChain.add(nsA9);
+//        nsAChain.add(nsA10);
+//        nsAChain.add(nsA11);
+//        nsAChain.add(nsA12);
+//        nsAChain.add(nsA13);
+//        nsAChain.add(nsA14);
+//        nsAChain.add(nsA15);
+
+        // Clean up extra to make pretty
+//        ChainElement del1 = createChainLink("Del", nsA, "pairA");
+//        ChainElement del2 = createChainLink("Del", nsA, "temp");
+//        ChainElement del3 = createChainLink("Del", nsA, "d");
+//        ChainElement del4 = createChainLink("Del", nsA, "x");
+//        ChainElement del5 = createChainLink("Del", nsA, "out");
+//        ChainElement del6 = createChainLink("Del", nsA, "a");
+//        ChainElement del7 = createChainLink("Del", nsA, "c");
+//        nsAChain.add(del1);
+//        nsAChain.add(del2);
+//        nsAChain.add(del3);
+//        nsAChain.add(del4);
+//        nsAChain.add(del5);
+//        nsAChain.add(del6);
+//        nsAChain.add(del7);
+
+
+        ArrayList<ChainElement> nsSChain = new ArrayList<>();
+        ChainElement nsS1 = createChainLink("I", getChannel(nsS, nsA), "temp");
+        ChainElement nsS2 = createChainLink("S", "temp", "temp", "c");
+        ChainElement nsS3 = createChainLink("S", "temp", "a", "b");
+        ChainElement nsS4 = createChainLink("P", "d", "KeyAB", "a");
+        ChainElement nsS5 = createChainLink("E", "d", nsS.getKey(nsB));
+        ChainElement nsS6 = createChainLink("P", "out", "b", "d");
+        ChainElement nsS7 = createChainLink("P", "out", "KeyAB", "out");
+        ChainElement nsS8 = createChainLink("P", "out", "c", "out");
+        ChainElement nsS9 = createChainLink("E", "out", nsS.getKey(nsA));
+        ChainElement nsS10 = createChainLink("O", getChannel(nsA, nsS), "out");
+
+        nsSChain.add(new ChainElement(nsS));
+        nsSChain.add(nsS1);
+        nsSChain.add(nsS2);
+        nsSChain.add(nsS3);
+        nsSChain.add(nsS4);
+        nsSChain.add(nsS5);
+        nsSChain.add(nsS6);
+        nsSChain.add(nsS7);
+        nsSChain.add(nsS8);
+        nsSChain.add(nsS9);
+        nsSChain.add(nsS10);
+
+//        ChainElement delS = createChainLink("Del", nsS, "a");
+//        ChainElement delS1 = createChainLink("Del", nsS, "b");
+//        ChainElement delS2 = createChainLink("Del", nsS, "c");
+//        ChainElement delS3 = createChainLink("Del", nsS, "d");
+//        nsAChain.add(delS3);
+//        nsAChain.add(delS2);
+//        nsAChain.add(delS);
+//        nsAChain.add(delS1);
+
+
+        ArrayList<ChainElement> nsBChain = new ArrayList<>();
+        ChainElement nsB1 = createChainLink("I", getChannel(nsA, nsB), "x");
+        ChainElement nsB2 = createChainLink("D", "x", nsB.getKey(nsS), "p");
+        ChainElement nsB3 = createChainLink("S", "p", "y", "z");
+        ChainElement nsB4 = createChainLink("E", "NonceB", "y");
+        ChainElement nsB5 = createChainLink("O", getChannel(nsA, nsB), "NonceB");
+        ChainElement nsB6 = createChainLink("I", getChannel(nsA, nsB), "x");
+        ChainElement nsB7 = createChainLink("D", "x", "y", "e");
+        ChainElement nsB8 = createChainLink("D", "NonceB", "y", "NonceB");
+        ChainElement nsB9 = createChainLink("+", "NonceB", "1");
+        ChainElement nsB10 = createChainLink("M", "NonceB", "e");
+
+        nsBChain.add(new ChainElement(nsB));
+        nsBChain.add(nsB1);
+        nsBChain.add(nsB2);
+        nsBChain.add(nsB3);
+        nsBChain.add(nsB4);
+        nsBChain.add(nsB5);
+        nsBChain.add(nsB6);
+        nsBChain.add(nsB7);
+        nsBChain.add(nsB8);
+        nsBChain.add(nsB9);
+        nsBChain.add(nsB10);
+
+        // Clean up
+//        ChainElement delB = createChainLink("Del", nsB, "x");
+//        ChainElement delB1 = createChainLink("Del", nsB, "z");
+//        nsAChain.add(delB);
+//        nsAChain.add(delB1);
+
+        // INTRUDER STARTS HERE
+        ArrayList<ChainElement> nsIChain = new ArrayList<ChainElement>();
+        ChainElement nsI0 = createChainLink("P", "interrupt", "x", "y");
+        ChainElement nsI1 = createChainLink("E", "interrupt", nsS.getKey(nsB));
+        ChainElement nsI2 = createChainLink("O", getChannel(nsA, nsB), "interrupt");
+        ChainElement nsI3 = createChainLink("I", getChannel(nsA, nsB), "fromB");
+        ChainElement nsI4 = createChainLink("D", "fromB", "x", "e");
+        ChainElement nsI5 = createChainLink("+", "e", "1");
+        ChainElement nsI6 = createChainLink("E", "e", "x");
+        ChainElement nsI7 = createChainLink("O", getChannel(nsA, nsB), "e");
+
+        nsIChain.add(new ChainElement(nsI));
+        nsIChain.add(nsI0);
+        nsIChain.add(nsI1);
+        nsIChain.add(nsI2);
+        nsIChain.add(nsI3);
+        nsIChain.add(nsI4);
+        nsIChain.add(nsI5);
+        nsIChain.add(nsI6);
+        nsIChain.add(nsI7);
+
+        ArrayList<ArrayList<ChainElement>> nsChain = new ArrayList<>();
+        nsChain.add(nsAChain);
+        nsChain.add(nsSChain);
+        nsChain.add(nsBChain);
+        nsChain.add(nsIChain);
+
+        outputProcesses();
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+
+        parseChain(nsChain);
+
+        outputProcesses();
+        gui.updateOutput("The protocol has been successful.");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while(!proceed){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
+    }
+
     public void run(){
         switch(process){
             case(1):
@@ -976,6 +1176,15 @@ public class calculus {
             case(4):
                 mainTest();
                 process = 0;
+                break;
+            case(5):
+                needhamSchroederIntruder();
+                process = 0;
+                break;
+            case(6):
+                createGui = new createYourOwn(this);
+                process = 0;
+                CYOprocesses.clear();
                 break;
         }
         outputBuffer.clear();
@@ -1002,5 +1211,60 @@ public class calculus {
 
       //  System.exit(0);
 
+    }
+
+    // CREATE YOUR OWN
+
+    public ArrayList<Process> CYOprocesses = new ArrayList<Process>();
+
+    public void createYourOwnCalculus(){
+
+    }
+
+    public void createProcess(String name) {
+        CYOprocesses.add(new Process(name));
+        showInformation();
+    }
+
+    public void showInformation(){
+            createGui.clearText();
+
+            for(Process process : CYOprocesses) {
+                createGui.updateInfo(process.processName + "\n");
+            }
+
+        //Channels
+        createGui.updateInfo("Channels\n");
+        for(Map.Entry<String, Name> channel : channels.entrySet()){
+            String temp = " - " + channel.getValue().returnValue();
+            for(ArrayList<ChainElement> buffer : outputBuffer) {
+                if (buffer.get(0).getTerm() == channel.getValue()) {
+                    temp = temp + (" --> " + buffer.get(1).getTerm().returnValue()+"\n");
+                }
+            }
+            createGui.updateInfo(temp);
+        }
+        createGui.updateInfo("\nPrivate Channels\n");
+        for(Process output : activeProcesses){
+            for(Map.Entry<String, Name> channel : output.channels.entrySet()){
+                gui.updateState(" - " + channel.getValue().returnValue() + " private to " + output.processName);
+            }
+        }
+
+        // Update variables
+        for(Process output : CYOprocesses) {
+            createGui.updateInfo(output.processName + "\n");
+            createGui.updateInfo(" - Terms\n");
+            for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
+                createGui.updateInfo("   - " + entry.getKey() + ": " + entry.getValue().returnValue() + "\n");
+            }
+        }
+
+
+    }
+
+    public void input(int selectedIndex, String text, String binding) {
+        CYOprocesses.get(selectedIndex).input(new Name(text), binding);
+        showInformation();
     }
 }
