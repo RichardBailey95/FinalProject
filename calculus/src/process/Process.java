@@ -15,7 +15,7 @@ public class Process {
     public Map<String, Term> terms = new HashMap<String, Term>();
     public Map<Process, String> keys = new HashMap<Process, String>();
     public Map<String, String> symKeys = new HashMap<String, String>();
-    public Map<String, Name> channels = new HashMap<String, Name>();
+    public Map<String, Term> channels = new HashMap<String, Term>();
 
 
     public Process(String name){
@@ -56,6 +56,15 @@ public class Process {
 
     public String getKey(Process share){
         return keys.get(share);
+    }
+
+    public String getKey(String processName){
+        for(Map.Entry<Process, String> temp : keys.entrySet()){
+            if(temp.getKey().processName.equals(processName)){
+                return temp.getValue();
+            }
+        }
+        return null;
     }
 
     public String generateKey(Process one, Process two){

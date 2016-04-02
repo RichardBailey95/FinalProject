@@ -112,6 +112,7 @@ public class calculusGUI extends JFrame {
                     proceedButton.setText("Start");
                     proceedButton.setEnabled(false);
                     needhamSchroederButton.setEnabled(true);
+                    needhamSchroederIntruderButton.setEnabled(true);
                     wideMouthFrogButton.setEnabled(true);
                     factorialExampleButton.setEnabled(true);
                     mainTestButton.setEnabled(true);
@@ -138,9 +139,23 @@ public class calculusGUI extends JFrame {
         createOwnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                active.process = 6;
+                stopButton.setEnabled(true);
+                proceedButton.setEnabled(true);
+                needhamSchroederButton.setEnabled(false);
+                wideMouthFrogButton.setEnabled(false);
+                factorialExampleButton.setEnabled(false);
+                factInput.setEnabled(false);
+                needhamSchroederIntruderButton.setEnabled(false);
+                mainTestButton.setEnabled(false);
+                active.createGui.setVisible(true);
             }
         });
+    }
+
+    public void cYO() {
+        proceedButton.setEnabled(true);
+        proceedButton.setText("Proceed");
+        stopButton.setEnabled(true);
     }
 
     public void updateOutput(String toOutput) {
@@ -203,7 +218,7 @@ public class calculusGUI extends JFrame {
         processState.setWrapStyleWord(true);
         scrollPane1.setViewportView(processState);
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 2, new Insets(5, 5, 5, 15), -1, -1));
+        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 2, new Insets(0, 5, 5, 15), -1, -1));
         panel2.setBackground(new Color(-4866627));
         panel2.setForeground(new Color(-4866627));
         mainWindow.add(panel2, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(200, 400), null, 0, false));

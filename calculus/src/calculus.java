@@ -7,11 +7,12 @@ import java.util.*;
 public class calculus {
     private ArrayList<ArrayList<ChainElement>> outputBuffer = new ArrayList<>();
     private ArrayList<Process> activeProcesses = new ArrayList<>();
-    public Map<String, Name> channels = new HashMap<>();
+    public Map<String, Term> channels = new HashMap<>();
+    private Map<String, Term> channelsCYO = new HashMap<>();
     public Scanner scan;
     private Random rand;
     private calculusGUI gui;
-    private createYourOwn createGui;
+    public createYourOwn createGui;
     public boolean proceed = false;
     public int process = 0;
     public int factNumber;
@@ -20,6 +21,7 @@ public class calculus {
     private calculus() {
         System.out.println("Starting....");
         gui = new calculusGUI(this);
+        createGui = new createYourOwn(this);
         scan = new Scanner(System.in);
         rand = new Random();
 
@@ -98,8 +100,8 @@ public class calculus {
                 } else if (activeProcess.channels.containsKey(channel)){
                     toAdd.add(new ChainElement(activeProcess.channels.get(channel)));
                 } else {
-                    toContinue = 3;
-                    break;
+                    channels.put(activeProcess.terms.get(channel).returnValue(), activeProcess.terms.get(channel));
+                    toAdd.add(new ChainElement(channels.get(activeProcess.terms.get(channel).returnValue())));
                 }
                 toAdd.add(new ChainElement(output));
                 Boolean added = false;
@@ -129,8 +131,8 @@ public class calculus {
 
                 int j = outputBuffer.size();
                 for (int k = 0; k < j; k++) {
-                    if (channels.containsKey(channel) || activeProcess.channels.containsKey(channel)) {
-                        if (outputBuffer.get(k).get(0).getTerm() == channels.get(channel) || outputBuffer.get(k).get(0).getTerm() == activeProcess.channels.get(channel)) {
+                    if (channels.containsKey(channel) || activeProcess.channels.containsKey(channel) || activeProcess.terms.containsKey(channel)) {
+                        if (outputBuffer.get(k).get(0).getTerm() == channels.get(channel) || outputBuffer.get(k).get(0).getTerm() == activeProcess.channels.get(channel) || outputBuffer.get(k).get(0).getTerm() == activeProcess.terms.get(channel)) {
                             activeProcess.input(outputBuffer.get(k).get(1).getTerm(), inputBind);
                             gui.updateOutput(activeProcess.processName + " received a term " + inputBind + " on channel " + channel);
                             while(!proceed){
@@ -459,7 +461,7 @@ public class calculus {
 
         // Update channels
         gui.updateState("Channels");
-        for(Map.Entry<String, Name> channel : channels.entrySet()){
+        for(Map.Entry<String, Term> channel : channels.entrySet()){
             String temp = " - " + channel.getValue().returnValue();
             for(ArrayList<ChainElement> buffer : outputBuffer) {
                 if (buffer.get(0).getTerm() == channel.getValue()) {
@@ -470,7 +472,7 @@ public class calculus {
         }
         gui.updateState("\nPrivate Channels");
         for(Process output : activeProcesses){
-            for(Map.Entry<String, Name> channel : output.channels.entrySet()){
+            for(Map.Entry<String, Term> channel : output.channels.entrySet()){
                 gui.updateState(" - " + channel.getValue().returnValue() + " private to " + output.processName);
             }
         }
@@ -1162,33 +1164,38 @@ public class calculus {
     public void run(){
         switch(process){
             case(1):
+                channels.clear();
                 wideMouthFrog();
                 process = 0;
                 break;
             case(2):
+                channels.clear();
                 needhamSchroeder();
                 process = 0;
                 break;
             case(3):
+                channels.clear();
                 factorial(factNumber);
                 process = 0;
                 break;
             case(4):
+                channels.clear();
                 mainTest();
                 process = 0;
                 break;
             case(5):
+                channels.clear();
                 needhamSchroederIntruder();
                 process = 0;
                 break;
             case(6):
-                createGui = new createYourOwn(this);
                 process = 0;
-                CYOprocesses.clear();
+                createYourOwnCalculus();
                 break;
         }
         outputBuffer.clear();
         channels.clear();
+        activeProcesses.clear();
     }
 
     public static void main(String[] args){
@@ -1197,19 +1204,6 @@ public class calculus {
         while(true){
             runCalc.run();
         }
-        // Demonstrate the wide mouth frog protocol
-        //runCalc.wideMouthFrog();
-
-        // Demonstrate the Needham Schroeder protocl
-        //runCalc.needhamSchroeder();
-
-        // Test recursion
-        //runCalc.factorial(5);
-
-        // Test calculus
-        //runCalc.mainTest();
-
-      //  System.exit(0);
 
     }
 
@@ -1217,8 +1211,57 @@ public class calculus {
 
     public ArrayList<Process> CYOprocesses = new ArrayList<Process>();
 
-    public void createYourOwnCalculus(){
 
+    private void backupCYO() {
+        for(Process process : CYOprocesses){
+            activeProcesses.add(process);
+        }
+        for(Map.Entry<String, Term> channel : channelsCYO.entrySet()) {
+            channels.put(channel.getKey(), channel.getValue());
+        }
+    }
+
+    private void createYourOwnCalculus(){
+        createGui.setVisible(false);
+        backupCYO();
+        gui.cYO();
+
+        outputProcesses();
+        while (!proceed) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        proceed = false;
+        outputProcesses();
+        ArrayList<ArrayList<ChainElement>> temp = new ArrayList<>();
+        for(int i=0; i<createGui.chain.size(); i++){
+            temp.add(i, new ArrayList<>());
+            for(int j=0; j<createGui.chain.get(i).size(); j++){
+                temp.get(i).add(j, createGui.chain.get(i).get(j));
+            }
+        }
+
+
+        parseChain(temp);
+
+        outputProcesses();
+        gui.updateOutput("The protocol has finished");
+        gui.proceedButton.setText("Clear");
+        gui.stopButton.setEnabled(false);
+        while (!proceed) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        createGui.setVisible(true);
+        proceed = false;
+        gui.clearOutput();
+        gui.clearStates();
     }
 
     public void createProcess(String name) {
@@ -1227,44 +1270,93 @@ public class calculus {
     }
 
     public void showInformation(){
-            createGui.clearText();
+        createGui.clearText();
 
-            for(Process process : CYOprocesses) {
-                createGui.updateInfo(process.processName + "\n");
-            }
+        for(Process process : CYOprocesses) {
+            createGui.updateInfo(process.processName + " = " + chainToString(createGui.chain, process) + "\n");
+        }
 
         //Channels
-        createGui.updateInfo("Channels\n");
-        for(Map.Entry<String, Name> channel : channels.entrySet()){
+        createGui.updateInfo("\nChannels\n");
+        for(Map.Entry<String, Term> channel : channelsCYO.entrySet()){
             String temp = " - " + channel.getValue().returnValue();
-            for(ArrayList<ChainElement> buffer : outputBuffer) {
-                if (buffer.get(0).getTerm() == channel.getValue()) {
-                    temp = temp + (" --> " + buffer.get(1).getTerm().returnValue()+"\n");
-                }
-            }
-            createGui.updateInfo(temp);
+            createGui.updateInfo(temp+"\n");
         }
-        createGui.updateInfo("\nPrivate Channels\n");
-        for(Process output : activeProcesses){
-            for(Map.Entry<String, Name> channel : output.channels.entrySet()){
-                gui.updateState(" - " + channel.getValue().returnValue() + " private to " + output.processName);
-            }
-        }
+        createGui.updateInfo("\nProcesses\n");
 
         // Update variables
         for(Process output : CYOprocesses) {
-            createGui.updateInfo(output.processName + "\n");
+            createGui.updateInfo(output.processName);
             createGui.updateInfo(" - Terms\n");
             for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
                 createGui.updateInfo("   - " + entry.getKey() + ": " + entry.getValue().returnValue() + "\n");
             }
+            createGui.updateInfo(output.processName +" - Keys\n");
+            for(Map.Entry<Process, String> keys : output.keys.entrySet()){
+                createGui.updateInfo("   - " + keys.getValue() + " with " + keys.getKey().processName + "\n");
+            }
         }
+    }
 
+    private String chainToString(ArrayList<ArrayList<ChainElement>> chain, Process process) {
+        String output = "";
+        for(ArrayList<ChainElement> processChain : chain){
+            if(processChain.get(0).getProcess() == process){
+                for(int i = 1; i<processChain.size(); i++){
+                    output = output + chainPieceToString(processChain.get(i)) + ".";
+                }
+            }
+        }
+        return output + "0";
+    }
 
+    private String chainPieceToString(ChainElement chainElement) {
+        String output = "";
+        switch(chainElement.getChain().get(0).getString()){
+            case "O":
+                String temp = chainElement.getChain().get(1).getString();
+                for(int i=0; i<temp.length(); i++){
+                    output = output + temp.charAt(i) + "\u0305";
+                }
+                output =  output + "<" + chainElement.getChain().get(2).getString() + ">";
+                break;
+            case "I":
+                output =  chainElement.getChain().get(1).getString() + "(" + chainElement.getChain().get(2).getString() + ")";
+                break;
+            case "E":
+                output = "{" + chainElement.getChain().get(1).getString() + "}" + chainElement.getChain().get(2).getString();
+        }
+        return output;
     }
 
     public void input(int selectedIndex, String text, String binding) {
         CYOprocesses.get(selectedIndex).input(new Name(text), binding);
+        showInformation();
+    }
+
+    public Name createChannelCYO(String name){
+        Name channel = new Name(name);
+        channelsCYO.put(name, channel);
+        return channel;
+    }
+
+    public void parseCreateYourOwn(ArrayList<ArrayList<ChainElement>> chain){
+        System.out.println("Attempting to run");
+        activeProcesses.addAll(CYOprocesses);
+        createGui.setVisible(false);
+        gui.cYO();
+        parseChain(chain);
+        createGui.setVisible(true);
+    }
+
+    public void createKey(int process1, int process2) {
+        Process one = CYOprocesses.get(process1);
+        Process two = CYOprocesses.get(process2);
+        if(two.getKey(one) != null) {
+            one.setKey(two.getKey(one), two);
+        }else {
+            one.setKey(one.generateKey(one, two), two);
+        }
         showInformation();
     }
 }

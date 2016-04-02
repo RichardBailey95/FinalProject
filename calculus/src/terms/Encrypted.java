@@ -8,7 +8,7 @@ public class Encrypted extends Term {
     public String key;
 
     public String returnValue(){
-        return "\"" + term.returnValue() + "\" encrypted by key " + key;
+        return "{" + term.returnValue() + "}" + key;
     }
 
     public Encrypted(Term term, String encryptionKey){

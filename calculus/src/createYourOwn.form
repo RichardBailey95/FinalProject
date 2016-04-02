@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="createYourOwn">
-  <grid id="27dc6" binding="createWindow" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="createWindow" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="534" height="595"/>
+      <xy x="20" y="20" width="534" height="781"/>
     </constraints>
     <properties>
       <background color="-4407875"/>
@@ -120,19 +120,19 @@
           </component>
         </children>
       </grid>
-      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <background color="-4407875"/>
           <foreground color="-4407875"/>
-          <visible value="true"/>
+          <visible value="false"/>
         </properties>
         <border type="none"/>
         <children>
-          <grid id="29412" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="29412" binding="addOrEdit" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -140,6 +140,7 @@
             <properties>
               <background color="-4407875"/>
               <foreground color="-4407875"/>
+              <visible value="true"/>
             </properties>
             <border type="none"/>
             <children>
@@ -159,6 +160,38 @@
                   <text value="Edit"/>
                 </properties>
               </component>
+              <component id="8a172" class="javax.swing.JButton" binding="runButton" default-binding="true">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Run"/>
+                </properties>
+              </component>
+              <component id="f331" class="javax.swing.JButton" binding="addVariableButton">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add Variable"/>
+                </properties>
+              </component>
+              <component id="56f8d" class="javax.swing.JButton" binding="addChannelButton" default-binding="true">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add Channel"/>
+                </properties>
+              </component>
+              <component id="b4bd8" class="javax.swing.JButton" binding="addKeyButton" default-binding="true">
+                <constraints>
+                  <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add Key"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="1dc41" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -169,6 +202,7 @@
             <properties>
               <background color="-4407875"/>
               <foreground color="-4407875"/>
+              <visible value="true"/>
             </properties>
             <border type="none"/>
             <children>
@@ -202,7 +236,7 @@
               </component>
             </children>
           </grid>
-          <grid id="c2934" binding="addTerm" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="c2934" binding="addTerm" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -210,6 +244,7 @@
             <properties>
               <background color="-4407875"/>
               <foreground color="-4407875"/>
+              <visible value="false"/>
             </properties>
             <border type="none"/>
             <children>
@@ -241,9 +276,17 @@
                   <text value="Create"/>
                 </properties>
               </component>
+              <component id="602a1" class="javax.swing.JButton" binding="backButton" default-binding="true">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Back"/>
+                </properties>
+              </component>
             </children>
           </grid>
-          <grid id="adfaa" binding="outputCreate" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="adfaa" binding="outputCreate" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -251,10 +294,11 @@
             <properties>
               <background color="-4407875"/>
               <foreground color="-4407875"/>
+              <visible value="false"/>
             </properties>
             <border type="none"/>
             <children>
-              <component id="f1db0" class="javax.swing.JButton" binding="addButton1" default-binding="true">
+              <component id="f1db0" class="javax.swing.JButton" binding="addOutput">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -262,26 +306,38 @@
                   <text value="Add"/>
                 </properties>
               </component>
-              <component id="ceeb0" class="javax.swing.JComboBox" binding="comboBox2" default-binding="true">
+              <component id="572a2" class="javax.swing.JTextField" binding="variableOut">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="120" height="-1"/>
+                  </grid>
                 </constraints>
                 <properties>
-                  <name value=""/>
-                  <toolTipText value="Select a channel for output"/>
+                  <toolTipText value="The variable the channel will output"/>
                 </properties>
               </component>
-              <component id="bce0f" class="javax.swing.JComboBox" binding="comboBox3" default-binding="true">
+              <component id="641e8" class="javax.swing.JTextField" binding="channelsOut">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="Select a variable to output"/>
+                  <toolTipText value="The channel which the process will output on"/>
+                </properties>
+              </component>
+              <component id="e6e68" class="javax.swing.JButton" binding="backButton1" default-binding="true">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
                 </properties>
               </component>
             </children>
           </grid>
-          <grid id="b1e64" binding="inputCreate" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="b1e64" binding="inputCreate" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -289,10 +345,11 @@
             <properties>
               <background color="-4407875"/>
               <foreground color="-4407875"/>
+              <visible value="false"/>
             </properties>
             <border type="none"/>
             <children>
-              <component id="4b626" class="javax.swing.JButton" default-binding="true">
+              <component id="4b626" class="javax.swing.JButton" binding="addInput">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -300,28 +357,91 @@
                   <text value="Add"/>
                 </properties>
               </component>
-              <component id="5d162" class="javax.swing.JComboBox" default-binding="true">
+              <component id="950b4" class="javax.swing.JTextField" binding="inputVariableBind">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="120" height="-1"/>
+                  </grid>
                 </constraints>
                 <properties>
-                  <name value=""/>
-                  <toolTipText value="Select a channel for output"/>
+                  <toolTipText value="The binding the process will bind the input to"/>
                 </properties>
               </component>
-              <component id="b048" class="javax.swing.JComboBox" default-binding="true">
+              <component id="9472f" class="javax.swing.JTextField" binding="channelsIn">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="Select a variable to bind input to"/>
+                  <toolTipText value="The channel the process will input from"/>
+                </properties>
+              </component>
+              <component id="7dc4f" class="javax.swing.JButton" binding="backButton2" default-binding="true">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="916df" binding="encryptCreate" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="8ddd0" class="javax.swing.JButton" binding="addEncrypt">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="fbc82" class="javax.swing.JTextField" binding="keyToEncryptWith">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="120" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The key to encrypt the variable with"/>
+                </properties>
+              </component>
+              <component id="c3456" class="javax.swing.JTextField" binding="variableToEncrypt">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable to be encrypted"/>
+                </properties>
+              </component>
+              <component id="7cf3" class="javax.swing.JButton" binding="backButton3">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
                 </properties>
               </component>
             </children>
           </grid>
         </children>
       </grid>
-      <grid id="cddda" binding="PopulateVariables" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="cddda" binding="createVariables" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -342,7 +462,7 @@
           <component id="8a8bf" class="javax.swing.JTextField" binding="textField1" default-binding="true">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="100" height="-1"/>
               </grid>
             </constraints>
             <properties>
@@ -352,7 +472,7 @@
           <component id="eccc" class="javax.swing.JTextField" binding="textField2" default-binding="true">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
+                <preferred-size width="100" height="-1"/>
               </grid>
             </constraints>
             <properties>
@@ -393,16 +513,10 @@
         <properties>
           <background color="-4407875"/>
           <foreground color="-4407875"/>
-          <visible value="true"/>
+          <visible value="false"/>
         </properties>
         <border type="none"/>
         <children>
-          <component id="c317b" class="javax.swing.JComboBox" binding="channelA">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
           <component id="91ed6" class="javax.swing.JButton" binding="createChannelButton">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -411,7 +525,7 @@
               <text value="Create"/>
             </properties>
           </component>
-          <component id="2d5b5" class="javax.swing.JButton" default-binding="true">
+          <component id="2d5b5" class="javax.swing.JButton" binding="finishedChannels">
             <constraints>
               <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -427,7 +541,61 @@
               <text value="Create channels between processes that are required"/>
             </properties>
           </component>
-          <component id="e855" class="javax.swing.JComboBox" binding="channelB">
+          <component id="9b243" class="javax.swing.JTextField" binding="channelName">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <toolTipText value="The name of the channel"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="4ddc7" binding="createKeys" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="5" left="5" bottom="5" right="5"/>
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-4407875"/>
+          <foreground color="-4407875"/>
+          <visible value="false"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="6e3bb" class="javax.swing.JButton" binding="createKeyButton">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Create"/>
+            </properties>
+          </component>
+          <component id="643af" class="javax.swing.JButton" binding="finishedKeyButton">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Finished"/>
+            </properties>
+          </component>
+          <component id="e6a7c" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Create keys between two processes"/>
+            </properties>
+          </component>
+          <component id="30022" class="javax.swing.JComboBox" binding="comboBox2" default-binding="true">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="aca40" class="javax.swing.JComboBox" binding="comboBox3" default-binding="true">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
