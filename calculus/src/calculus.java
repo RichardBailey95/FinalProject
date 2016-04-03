@@ -6,7 +6,7 @@ import java.util.*;
 
 public class calculus {
     private ArrayList<ArrayList<ChainElement>> outputBuffer = new ArrayList<>();
-    private ArrayList<Process> activeProcesses = new ArrayList<>();
+    public ArrayList<Process> activeProcesses = new ArrayList<>();
     public Map<String, Term> channels = new HashMap<>();
     private Map<String, Term> channelsCYO = new HashMap<>();
     public Scanner scan;
@@ -367,7 +367,7 @@ public class calculus {
         /*
         ("O", channel, binding)
         ("I", channel, binding)
-        "E", binding, key)
+        ("E", binding, key)
         ("M", binding1, binding2)
         ("*", term1, term2)
         ("+", term1, term2)
@@ -408,7 +408,7 @@ public class calculus {
         return new ChainElement(output);
     }
 
-    // Interger Case
+    // Integer Case
     public ChainElement createChainLink(String identifier, String binding, ArrayList<ChainElement> chain1, String succBind, ArrayList<ChainElement> chain2){
         /*
         ("N", binding, 0 case process, bindingSucc, process)
@@ -1212,10 +1212,19 @@ public class calculus {
     public ArrayList<Process> CYOprocesses = new ArrayList<Process>();
 
 
-    private void backupCYO() {
-        for(Process process : CYOprocesses){
-            activeProcesses.add(process);
+    private void initiateCYO() {
+        for(int i=0; i<processes.size(); i++){
+            Process newProcess = new Process(processes.get(i));
+            for(ArrayList<String> variable : variables){
+                if(variable.get(0).equals(processes.get(i))){
+                    newProcess.input(new Name(variable.get(1)), variable.get(2));
+                }
+            }
+            activeProcesses.add(newProcess);
+            createGui.chain.get(i).remove(0);
+            createGui.chain.get(i).add(0, new ChainElement(newProcess));
         }
+
         for(Map.Entry<String, Term> channel : channelsCYO.entrySet()) {
             channels.put(channel.getKey(), channel.getValue());
         }
@@ -1223,7 +1232,7 @@ public class calculus {
 
     private void createYourOwnCalculus(){
         createGui.setVisible(false);
-        backupCYO();
+        initiateCYO();
         gui.cYO();
 
         outputProcesses();
@@ -1264,8 +1273,11 @@ public class calculus {
         gui.clearStates();
     }
 
+    ArrayList<String> processes = new ArrayList<>();
+
     public void createProcess(String name) {
         CYOprocesses.add(new Process(name));
+        processes.add(name);
         showInformation();
     }
 
@@ -1315,22 +1327,38 @@ public class calculus {
         switch(chainElement.getChain().get(0).getString()){
             case "O":
                 String temp = chainElement.getChain().get(1).getString();
+                String channel = "";
                 for(int i=0; i<temp.length(); i++){
-                    output = output + temp.charAt(i) + "\u0305";
+                    channel = channel + temp.charAt(i) + "\u0305";
                 }
-                output =  output + "<" + chainElement.getChain().get(2).getString() + ">";
+                output = String.format("%s<%s>", channel, chainElement.getChain().get(2).getString());
                 break;
             case "I":
-                output =  chainElement.getChain().get(1).getString() + "(" + chainElement.getChain().get(2).getString() + ")";
+                output = String.format("%s(%s)", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
                 break;
             case "E":
-                output = "{" + chainElement.getChain().get(1).getString() + "}" + chainElement.getChain().get(2).getString();
+                output = String.format("{%s}%s", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "D":
+                output =  String.format("case %s of {%s}%s", chainElement.getChain().get(1).getString(), chainElement.getChain().get(3).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "P":
+                output = String.format("%s=(%s,%s)", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString(), chainElement.getChain().get(3).getString());
+                break;
+
         }
         return output;
     }
 
+    ArrayList<ArrayList<String>> variables = new ArrayList<>();
+
     public void input(int selectedIndex, String text, String binding) {
         CYOprocesses.get(selectedIndex).input(new Name(text), binding);
+        ArrayList<String> temp = new ArrayList<>();
+        temp.add(CYOprocesses.get(selectedIndex).processName);
+        temp.add(text);
+        temp.add(binding);
+        variables.add(temp);
         showInformation();
     }
 
