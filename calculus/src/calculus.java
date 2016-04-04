@@ -555,6 +555,7 @@ public class calculus {
         wmfChain.add(wmfBob);
         // Execute
         outputProcesses();
+        System.out.println(chainToString(wmfChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -670,6 +671,8 @@ public class calculus {
         tester.add(bobProcess);
 //        tester.add(intruderProcess);
         outputProcesses();
+        System.out.println(chainToString(tester, activeProcesses));
+
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -745,7 +748,9 @@ public class calculus {
         ArrayList<ArrayList<ChainElement>> chain = new ArrayList<>();
         chain.add(start);
         chain.add(temp);
+
         outputProcesses();
+        System.out.println(chainToString(chain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -926,6 +931,7 @@ public class calculus {
         nsChain.add(nsBChain);
 
         outputProcesses();
+        System.out.println(chainToString(nsChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -1134,6 +1140,7 @@ public class calculus {
         nsChain.add(nsIChain);
 
         outputProcesses();
+        System.out.println(chainToString(nsChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -1217,7 +1224,11 @@ public class calculus {
             Process newProcess = new Process(processes.get(i));
             for(ArrayList<String> variable : variables){
                 if(variable.get(0).equals(processes.get(i))){
-                    newProcess.input(new Name(variable.get(1)), variable.get(2));
+                    if(variable.get(3).equals("true")){
+                        newProcess.input(new Zero(Integer.parseInt(variable.get(1))), variable.get(2));
+                    } else {
+                        newProcess.input(new Name(variable.get(1)), variable.get(2));
+                    }
                 }
             }
             activeProcesses.add(newProcess);
@@ -1284,9 +1295,7 @@ public class calculus {
     public void showInformation(){
         createGui.clearText();
 
-        for(Process process : CYOprocesses) {
-            createGui.updateInfo(process.processName + " = " + chainToString(createGui.chain, process) + "\n");
-        }
+        createGui.updateInfo(chainToString(createGui.chain, CYOprocesses) + "\n");
 
         //Channels
         createGui.updateInfo("\nChannels\n");
@@ -1294,32 +1303,37 @@ public class calculus {
             String temp = " - " + channel.getValue().returnValue();
             createGui.updateInfo(temp+"\n");
         }
-        createGui.updateInfo("\nProcesses\n");
 
         // Update variables
         for(Process output : CYOprocesses) {
-            createGui.updateInfo(output.processName);
+            createGui.updateInfo(output.processName + "\n");
             createGui.updateInfo(" - Terms\n");
             for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
                 createGui.updateInfo("   - " + entry.getKey() + ": " + entry.getValue().returnValue() + "\n");
             }
-            createGui.updateInfo(output.processName +" - Keys\n");
+            createGui.updateInfo(" - Keys\n");
             for(Map.Entry<Process, String> keys : output.keys.entrySet()){
                 createGui.updateInfo("   - " + keys.getValue() + " with " + keys.getKey().processName + "\n");
             }
         }
     }
 
-    private String chainToString(ArrayList<ArrayList<ChainElement>> chain, Process process) {
+    private String chainToString(ArrayList<ArrayList<ChainElement>> chain, ArrayList<Process> processes) {
         String output = "";
-        for(ArrayList<ChainElement> processChain : chain){
-            if(processChain.get(0).getProcess() == process){
-                for(int i = 1; i<processChain.size(); i++){
-                    output = output + chainPieceToString(processChain.get(i)) + ".";
+        for(Process process : processes) {
+            for (ArrayList<ChainElement> processChain : chain) {
+                if (processChain.get(0).getProcess() == process) {
+                    for (int i = 1; i < processChain.size(); i++) {
+                        output = output + chainPieceToString(processChain.get(i));
+                    }
+                    output = output + "0 | ";
                 }
             }
         }
-        return output + "0";
+        if(output.equals("")){
+            return output;
+        }
+        return output.substring(0, output.length()-3);
     }
 
     private String chainPieceToString(ChainElement chainElement) {
@@ -1331,33 +1345,77 @@ public class calculus {
                 for(int i=0; i<temp.length(); i++){
                     channel = channel + temp.charAt(i) + "\u0305";
                 }
-                output = String.format("%s<%s>", channel, chainElement.getChain().get(2).getString());
+                output = String.format("%s<%s>.", channel, chainElement.getChain().get(2).getString());
                 break;
             case "I":
-                output = String.format("%s(%s)", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                output = String.format("%s(%s).", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
                 break;
             case "E":
-                output = String.format("{%s}%s", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                output = String.format("{%s}%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
                 break;
             case "D":
-                output =  String.format("case %s of {%s}%s", chainElement.getChain().get(1).getString(), chainElement.getChain().get(3).getString(), chainElement.getChain().get(2).getString());
+                output =  String.format("case %s of {%s}%s in ", chainElement.getChain().get(1).getString(), chainElement.getChain().get(3).getString(), chainElement.getChain().get(2).getString());
                 break;
             case "P":
-                output = String.format("%s=(%s,%s)", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString(), chainElement.getChain().get(3).getString());
+                output = String.format("%s=(%s,%s).", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString(), chainElement.getChain().get(3).getString());
                 break;
-
+            case "S":
+                output = String.format("let (%s,%s)=%s in ", chainElement.getChain().get(2).getString(), chainElement.getChain().get(3).getString(), chainElement.getChain().get(1).getString());
+                break;
+            case "M":
+                output = String.format("[%s is %s].", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "N":
+                String case1 = "";
+                for(int i = 1; i<chainElement.getChain().get(2).getChain().size(); i++){
+                    case1 = case1 + chainPieceToString(chainElement.getChain().get(2).getChain().get(i));
+                }
+                case1 = case1 + "0";
+                String case2 = "";
+                for(int i = 1; i<chainElement.getChain().get(2).getChain().size(); i++){
+                    case2 = case2 + chainPieceToString(chainElement.getChain().get(4).getChain().get(i));
+                }
+                case2 = case2 + "0";
+                output = String.format("case %s of 0 : %s suc(%s) : %s", chainElement.getChain().get(1).getString(), case1, chainElement.getChain().get(3).getString(), case2);
+                break;
+            case "R":
+                String replicate = "";
+                for(int i = 1; i<chainElement.getChain().get(1).getChain().size(); i++){
+                    replicate = replicate + chainPieceToString(chainElement.getChain().get(1).getChain().get(i));
+                }
+                output = String.format("!(%s).", replicate);
+                break;
+            case "Res":
+                output = String.format("(v%s)", chainElement.getChain().get(2).getString());
+            case "+":
+                output = String.format("%s+%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "-":
+                output = String.format("%s-%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "*":
+                output = String.format("%s*%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
+            case "/":
+                output = String.format("%s/%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                break;
         }
         return output;
     }
 
     ArrayList<ArrayList<String>> variables = new ArrayList<>();
 
-    public void input(int selectedIndex, String text, String binding) {
-        CYOprocesses.get(selectedIndex).input(new Name(text), binding);
+    public void input(int selectedIndex, String text, String binding, Boolean number) {
+        if(number) {
+            CYOprocesses.get(selectedIndex).input(new Zero(Integer.parseInt(text)), binding);
+        } else {
+            CYOprocesses.get(selectedIndex).input(new Name(text), binding);
+        }
         ArrayList<String> temp = new ArrayList<>();
         temp.add(CYOprocesses.get(selectedIndex).processName);
         temp.add(text);
         temp.add(binding);
+        temp.add(number.toString());
         variables.add(temp);
         showInformation();
     }

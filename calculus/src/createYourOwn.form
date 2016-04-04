@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="createWindow" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="599" height="861"/>
+      <xy x="20" y="20" width="599" height="1231"/>
     </constraints>
     <properties>
       <background color="-4407875"/>
@@ -11,6 +11,7 @@
       <minimumSize width="1" height="1"/>
       <preferredSize width="500" height="400"/>
       <requestFocusEnabled value="true"/>
+      <visible value="true"/>
     </properties>
     <border type="none"/>
     <children>
@@ -121,7 +122,7 @@
           </component>
         </children>
       </grid>
-      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="8" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="14" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -520,7 +521,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="dd826" class="javax.swing.JButton" binding="addPair">
+              <component id="dd826" class="javax.swing.JButton" binding="addPairCreate">
                 <constraints>
                   <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -528,7 +529,7 @@
                   <text value="Add"/>
                 </properties>
               </component>
-              <component id="ec54b" class="javax.swing.JTextField" binding="pairB">
+              <component id="ec54b" class="javax.swing.JTextField" binding="pairBCreate">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
@@ -538,7 +539,7 @@
                   <toolTipText value="The variable of the second half of the pair"/>
                 </properties>
               </component>
-              <component id="3357a" class="javax.swing.JTextField" binding="pairA">
+              <component id="3357a" class="javax.swing.JTextField" binding="pairACreate">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
@@ -557,7 +558,7 @@
                   <text value="Back"/>
                 </properties>
               </component>
-              <component id="aa035" class="javax.swing.JTextField" binding="pairBind">
+              <component id="aa035" class="javax.swing.JTextField" binding="pairBindCreate">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
@@ -569,9 +570,384 @@
               </component>
             </children>
           </grid>
+          <grid id="ad1d8" binding="splitPair" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="122ba" class="javax.swing.JButton" binding="addPairSplit">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="dc08" class="javax.swing.JTextField" binding="pairASplit">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the first half of the pair"/>
+                </properties>
+              </component>
+              <component id="a726b" class="javax.swing.JTextField" binding="pairBindSplit">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable the pair is bound to"/>
+                </properties>
+              </component>
+              <component id="f5826" class="javax.swing.JButton" binding="backButton6">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="20fcb" class="javax.swing.JTextField" binding="pairBSplit">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the second half of the pair"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="13740" binding="restrictCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="bb9c4" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="e8391" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the first half of the pair"/>
+                </properties>
+              </component>
+              <component id="10d25" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable the pair is bound to"/>
+                </properties>
+              </component>
+              <component id="3e0c" class="javax.swing.JButton" binding="backButton7">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="938bb" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the second half of the pair"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="dfe2f" binding="replicateCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="36318" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="44553" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the first half of the pair"/>
+                </properties>
+              </component>
+              <component id="7c86d" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable the pair is bound to"/>
+                </properties>
+              </component>
+              <component id="36903" class="javax.swing.JButton" binding="backButton8">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="69379" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the second half of the pair"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="539e7" binding="matchCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="64358" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="9eefc" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the first half of the pair"/>
+                </properties>
+              </component>
+              <component id="8d404" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable the pair is bound to"/>
+                </properties>
+              </component>
+              <component id="396f6" class="javax.swing.JButton" binding="backButton9">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="947f2" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the second half of the pair"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="e2c52" binding="integerCaseCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="9f428" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="41672" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the first half of the pair"/>
+                </properties>
+              </component>
+              <component id="d86e5" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable the pair is bound to"/>
+                </properties>
+              </component>
+              <component id="e1b40" class="javax.swing.JButton" binding="backButton10">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="df20c" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding of the second half of the pair"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="efb21" binding="arithmeticCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <enabled value="true"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="2f30b" class="javax.swing.JButton" binding="addArithmetic">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add"/>
+                </properties>
+              </component>
+              <component id="c9591" class="javax.swing.JTextField" binding="arithmeticA">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The variable to update with the result of the arithmetic"/>
+                </properties>
+              </component>
+              <component id="3ba09" class="javax.swing.JButton" binding="backButton11">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <margin top="2" left="8" bottom="2" right="8"/>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="2b977" class="javax.swing.JTextField" binding="arithmeticB">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="100" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="The binding to do the arithmetic with"/>
+                </properties>
+              </component>
+              <component id="f9921" class="javax.swing.JComboBox" binding="comboBox4" default-binding="true">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="+"/>
+                    <item value="-"/>
+                    <item value="*"/>
+                    <item value="/"/>
+                  </model>
+                </properties>
+              </component>
+            </children>
+          </grid>
         </children>
       </grid>
-      <grid id="cddda" binding="createVariables" layout-manager="GridLayoutManager" row-count="2" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="cddda" binding="createVariables" layout-manager="GridLayoutManager" row-count="2" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -587,7 +963,9 @@
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties/>
+            <properties>
+              <toolTipText value="Select which agent the variable belongs to"/>
+            </properties>
           </component>
           <component id="8a8bf" class="javax.swing.JTextField" binding="textField1" default-binding="true">
             <constraints>
@@ -601,7 +979,7 @@
           </component>
           <component id="eccc" class="javax.swing.JTextField" binding="textField2" default-binding="true">
             <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="100" height="-1"/>
               </grid>
             </constraints>
@@ -611,26 +989,39 @@
           </component>
           <component id="d0c51" class="javax.swing.JButton" binding="inputButton" default-binding="true">
             <constraints>
-              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Input"/>
+              <toolTipText value="Input the variable"/>
             </properties>
           </component>
           <component id="327c8" class="javax.swing.JButton" binding="finishedButton" default-binding="true">
             <constraints>
-              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Finished"/>
+              <toolTipText value="Return to selection"/>
             </properties>
           </component>
           <component id="5051b" class="javax.swing.JLabel">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Create variables needed at the beginning of your system"/>
+            </properties>
+          </component>
+          <component id="66d56" class="javax.swing.JCheckBox" binding="numberCheckBox" default-binding="true">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <foreground color="-12763319"/>
+              <text value="Number"/>
+              <toolTipText value="Select this if the variable should be treated as a number"/>
             </properties>
           </component>
         </children>
