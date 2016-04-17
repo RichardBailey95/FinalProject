@@ -211,6 +211,7 @@ public class calculus {
             case "R":
                 ArrayList<ArrayList<ChainElement>> tempChain = new ArrayList<>();
                 ArrayList<ChainElement> chain = new ArrayList<>(piece.get(1).getChain());
+                chain.add(0, new ChainElement(activeProcess));
                 tempChain.add(chain);
                 if(parseChain(tempChain) == -1){
                     toContinue = 1;
@@ -288,6 +289,7 @@ public class calculus {
                 if(activeProcess.terms.get(bind).getNumber() == 0){
                     ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
                     ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(2).getChain());
+                    chainInt.add(0, new ChainElement(activeProcess));
                     tempChainInt.add(chainInt);
                     parseChain(tempChainInt);
                     toContinue = 3;
@@ -295,6 +297,7 @@ public class calculus {
                     activeProcess.input(new Zero(activeProcess.terms.get(bind).successor()), piece.get(3).getString());
                     ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
                     ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(4).getChain());
+                    chainInt.add(0, new ChainElement(activeProcess));
                     tempChainInt.add(chainInt);
                     parseChain(tempChainInt);
                     toContinue = 2;
@@ -724,18 +727,18 @@ public class calculus {
         ArrayList<ChainElement> re = new ArrayList<>();
         ChainElement re1 = createChainLink("I", "a", "x");
         ChainElement re2 = createChainLink("S", "x", "a", "b");
-        re.add(new ChainElement(test));
+//        re.add(new ChainElement(test));
         re.add(re1);
         re.add(re2);
         ArrayList<ChainElement> recurse = new ArrayList<>();
         ChainElement recurse1 = createChainLink("O", "b2", "b");
-        recurse.add(new ChainElement(test));
+//        recurse.add(new ChainElement(test));
         recurse.add(recurse1);
         ArrayList<ChainElement> recurse2 = new ArrayList<>();
         ChainElement mult = createChainLink("*", "a", "b");
         ChainElement recurse3 = createChainLink("P", "z", "z", "a");
         ChainElement ns = createChainLink("O", "a", "z");
-        recurse2.add(new ChainElement(test));
+//        recurse2.add(new ChainElement(test));
         recurse2.add(mult);
         recurse2.add(recurse3);
         recurse2.add(ns);
@@ -1295,8 +1298,6 @@ public class calculus {
     public void showInformation(){
         createGui.clearText();
 
-        createGui.updateInfo(chainToString(createGui.chain, CYOprocesses) + "\n");
-
         //Channels
         createGui.updateInfo("\nChannels\n");
         for(Map.Entry<String, Term> channel : channelsCYO.entrySet()){
@@ -1367,23 +1368,29 @@ public class calculus {
                 break;
             case "N":
                 String case1 = "";
-                for(int i = 1; i<chainElement.getChain().get(2).getChain().size(); i++){
-                    case1 = case1 + chainPieceToString(chainElement.getChain().get(2).getChain().get(i));
+                ArrayList<ArrayList<ChainElement>> case1c = new ArrayList<>();
+                case1c.add(chainElement.getChain().get(2).getChain());
+                for (int i = 0; i < case1c.get(0).size(); i++) {
+                    case1 = case1 + chainPieceToString(case1c.get(0).get(i));
                 }
-                case1 = case1 + "0";
+
                 String case2 = "";
-                for(int i = 1; i<chainElement.getChain().get(2).getChain().size(); i++){
-                    case2 = case2 + chainPieceToString(chainElement.getChain().get(4).getChain().get(i));
+                ArrayList<ArrayList<ChainElement>> case2c = new ArrayList<>();
+                case2c.add(chainElement.getChain().get(4).getChain());
+                for (int i = 0; i < case2c.get(0).size(); i++) {
+                    case2 = case2 + chainPieceToString(case2c.get(0).get(i));
                 }
-                case2 = case2 + "0";
                 output = String.format("case %s of 0 : %s suc(%s) : %s", chainElement.getChain().get(1).getString(), case1, chainElement.getChain().get(3).getString(), case2);
                 break;
             case "R":
                 String replicate = "";
-                for(int i = 1; i<chainElement.getChain().get(1).getChain().size(); i++){
-                    replicate = replicate + chainPieceToString(chainElement.getChain().get(1).getChain().get(i));
+                ArrayList<ArrayList<ChainElement>> temp2 = new ArrayList<>();
+                temp2.add(chainElement.getChain().get(1).getChain());
+                for (int i = 0; i < temp2.get(0).size(); i++) {
+                    replicate = replicate + chainPieceToString(temp2.get(0).get(i));
                 }
-                output = String.format("!(%s).", replicate);
+
+                output = String.format("!(%s).", replicate.substring(0, replicate.length()-1));
                 break;
             case "Res":
                 output = String.format("(v%s)", chainElement.getChain().get(2).getString());

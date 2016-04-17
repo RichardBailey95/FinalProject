@@ -15,7 +15,7 @@
     </properties>
     <border type="none"/>
     <children>
-      <grid id="4e423" binding="calculusShow" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="4e423" binding="calculusShow" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
@@ -29,7 +29,7 @@
         <children>
           <scrollpane id="5231">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -40,6 +40,26 @@
                   <background color="-3289651"/>
                   <editable value="false"/>
                   <foreground color="-15197922"/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+          <scrollpane id="39ba">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <visible value="true"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="41722" class="javax.swing.JTextArea" binding="calculusRep">
+                <constraints/>
+                <properties>
+                  <background color="-3289651"/>
+                  <editable value="false"/>
+                  <foreground color="-15197922"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -122,7 +142,7 @@
           </component>
         </children>
       </grid>
-      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="14" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="e3eef" binding="creatingCalculus" layout-manager="GridLayoutManager" row-count="16" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="5" left="5" bottom="5" right="5"/>
         <constraints>
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -264,7 +284,6 @@
                     <item value="Decrypt"/>
                     <item value="Create Pair"/>
                     <item value="Split Pair"/>
-                    <item value="Restrict"/>
                     <item value="Replicate"/>
                     <item value="Match"/>
                     <item value="Integer Case"/>
@@ -694,7 +713,7 @@
               </component>
             </children>
           </grid>
-          <grid id="dfe2f" binding="replicateCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="dfe2f" binding="replicateCreate" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -707,56 +726,45 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="36318" class="javax.swing.JButton">
+              <component id="36318" class="javax.swing.JButton" binding="addReplicate">
                 <constraints>
-                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Add"/>
+                  <text value="Add to Replicate"/>
                 </properties>
               </component>
-              <component id="44553" class="javax.swing.JTextField">
+              <component id="36903" class="javax.swing.JButton" binding="endReplicate">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="100" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <toolTipText value="The binding of the first half of the pair"/>
-                </properties>
-              </component>
-              <component id="7c86d" class="javax.swing.JTextField">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="100" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <toolTipText value="The variable the pair is bound to"/>
-                </properties>
-              </component>
-              <component id="36903" class="javax.swing.JButton" binding="backButton8">
-                <constraints>
-                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
-                  <text value="Back"/>
+                  <text value="End Replicate"/>
                 </properties>
               </component>
-              <component id="69379" class="javax.swing.JTextField">
+              <component id="61c33" class="javax.swing.JComboBox" binding="replicateSelection">
                 <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="100" height="-1"/>
-                  </grid>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding of the second half of the pair"/>
+                  <model>
+                    <item value="Output"/>
+                    <item value="Input"/>
+                    <item value="Encrypt"/>
+                    <item value="Decrypt"/>
+                    <item value="Create Pair"/>
+                    <item value="Split Pair"/>
+                    <item value="Restrict"/>
+                    <item value="Match"/>
+                    <item value="Integer Case"/>
+                    <item value="Arithmetic Operation"/>
+                  </model>
                 </properties>
               </component>
             </children>
           </grid>
-          <grid id="539e7" binding="matchCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="539e7" binding="matchCreate" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -769,25 +777,15 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="64358" class="javax.swing.JButton">
+              <component id="64358" class="javax.swing.JButton" binding="addMatch">
                 <constraints>
-                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Add"/>
                 </properties>
               </component>
-              <component id="9eefc" class="javax.swing.JTextField">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="100" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <toolTipText value="The binding of the first half of the pair"/>
-                </properties>
-              </component>
-              <component id="8d404" class="javax.swing.JTextField">
+              <component id="8d404" class="javax.swing.JTextField" binding="matchA">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
@@ -799,16 +797,16 @@
               </component>
               <component id="396f6" class="javax.swing.JButton" binding="backButton9">
                 <constraints>
-                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
                 </properties>
               </component>
-              <component id="947f2" class="javax.swing.JTextField">
+              <component id="947f2" class="javax.swing.JTextField" binding="matchB">
                 <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
                   </grid>
                 </constraints>
@@ -818,7 +816,7 @@
               </component>
             </children>
           </grid>
-          <grid id="e2c52" binding="integerCaseCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="e2c52" binding="integerCaseCreate" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -831,25 +829,15 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="9f428" class="javax.swing.JButton">
+              <component id="9f428" class="javax.swing.JButton" binding="addIntegerCase">
                 <constraints>
-                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Add"/>
                 </properties>
               </component>
-              <component id="41672" class="javax.swing.JTextField">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="100" height="-1"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <toolTipText value="The binding of the first half of the pair"/>
-                </properties>
-              </component>
-              <component id="d86e5" class="javax.swing.JTextField">
+              <component id="d86e5" class="javax.swing.JTextField" binding="caseA">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
@@ -861,16 +849,16 @@
               </component>
               <component id="e1b40" class="javax.swing.JButton" binding="backButton10">
                 <constraints>
-                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
                 </properties>
               </component>
-              <component id="df20c" class="javax.swing.JTextField">
+              <component id="df20c" class="javax.swing.JTextField" binding="succCase">
                 <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="100" height="-1"/>
                   </grid>
                 </constraints>
@@ -883,7 +871,7 @@
           <grid id="efb21" binding="arithmeticCreate" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <background color="-4407875"/>
@@ -941,6 +929,106 @@
                     <item value="*"/>
                     <item value="/"/>
                   </model>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="d3606" binding="intCase1Create" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="2c4cf" class="javax.swing.JComboBox" binding="intCase1Select">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="Output"/>
+                    <item value="Input"/>
+                    <item value="Encrypt"/>
+                    <item value="Decrypt"/>
+                    <item value="Create Pair"/>
+                    <item value="Split Pair"/>
+                    <item value="Replicate"/>
+                    <item value="Match"/>
+                    <item value="Integer Case"/>
+                    <item value="Arithmetic Operation"/>
+                  </model>
+                </properties>
+              </component>
+              <component id="a529e" class="javax.swing.JButton" binding="intCase1Add">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Add to chain 1"/>
+                </properties>
+              </component>
+              <component id="1c350" class="javax.swing.JButton" binding="intCase1End">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="End chain 1"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="c5f90" binding="intCase2Create" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-4407875"/>
+              <foreground color="-4407875"/>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="1bbc4" class="javax.swing.JComboBox" binding="intCase2Select">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <model>
+                    <item value="Output"/>
+                    <item value="Input"/>
+                    <item value="Encrypt"/>
+                    <item value="Decrypt"/>
+                    <item value="Create Pair"/>
+                    <item value="Split Pair"/>
+                    <item value="Replicate"/>
+                    <item value="Match"/>
+                    <item value="Integer Case"/>
+                    <item value="Arithmetic Operation"/>
+                  </model>
+                </properties>
+              </component>
+              <component id="e3d2b" class="javax.swing.JButton" binding="intCase2Add">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <label value="Add to chain 2"/>
+                  <text value="Add to chain 2"/>
+                </properties>
+              </component>
+              <component id="bddb6" class="javax.swing.JButton" binding="intCase2End">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <label value="End chain 2"/>
+                  <text value="End chain 2"/>
                 </properties>
               </component>
             </children>
