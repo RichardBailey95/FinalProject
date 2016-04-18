@@ -31,7 +31,7 @@ public class Process {
     }
 
     public Encrypted encrypt(String output, String key){
-        return new Encrypted(this.terms.get(output), key);
+        return new Encrypted(this.terms.get(output), getKey(key));
     }
 
     public boolean decrypt(String binding, String key, String decryptTo){
@@ -54,6 +54,10 @@ public class Process {
         return;
     }
 
+    public void setKeys(Map<Process,String> keys){
+        this.keys = keys;
+    }
+
     public String getKey(Process share){
         return keys.get(share);
     }
@@ -64,7 +68,7 @@ public class Process {
                 return temp.getValue();
             }
         }
-        return null;
+        return processName;
     }
 
     public String generateKey(Process one, Process two){

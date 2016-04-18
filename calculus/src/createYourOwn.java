@@ -111,7 +111,7 @@ public class createYourOwn extends JFrame {
     private JTextField caseA;
     private JTextField succCase;
     private JButton addIntegerCase;
-    private JTextArea calculusRep;
+    public JTextArea calculusRep;
     private JPanel intCase1Create;
     private JPanel intCase2Create;
     private JComboBox intCase1Select;
@@ -120,24 +120,45 @@ public class createYourOwn extends JFrame {
     private JComboBox intCase2Select;
     private JButton intCase2Add;
     private JButton intCase2End;
+    private JLabel nextTerm;
+    private JLabel prevTerm;
+    private JLabel currentTerm;
+    private JButton prevTermButton;
+    private JButton nextTermButton;
+    private JButton delTermButton;
+    private JButton editTermButton;
+    private JPanel editPanel;
+    private JButton endEditButton;
+    private JButton addTermButton;
+    private JPanel editSelection;
 
     private calculus active;
 
-    private ArrayList<String> calcRep = new ArrayList<>();
+    private ArrayList<ArrayList<String>> calcRep = new ArrayList<>();
 
     private boolean replication = false;
     private boolean intCase1 = false;
     private boolean intCase2 = false;
+    private boolean editAdd = false;
+    private boolean editTerm = false;
+    private boolean editReplicate = false;
 
 
     private int numberProcess;
     private int created = 0;
     private int editing = 0;
+    private int editingTerm = 1;
+    private int replicateEdit = 1;
+    private int editingChain = 0;
+    private int editIntCase = 0;
 
     public ArrayList<ArrayList<ChainElement>> chain = new ArrayList<>();
     public ArrayList<ChainElement> replicate = new ArrayList<>();
     public ArrayList<ChainElement> intCase1chain = new ArrayList<>();
     public ArrayList<ChainElement> intCase2chain = new ArrayList<>();
+    private ArrayList<ChainElement> editReplicateChain;
+    private ArrayList<ChainElement> editIntChain1;
+    private ArrayList<ChainElement> editIntChain2;
 
 
     public createYourOwn(calculus main) {
@@ -181,7 +202,9 @@ public class createYourOwn extends JFrame {
                 active.createProcess(nameInput.getText());
                 chain.add(new ArrayList<ChainElement>());
                 chain.get(created).add(new ChainElement(active.CYOprocesses.get(created)));
-                calcRep.add(nameInput.getText() + " = ");
+                calcRep.add(new ArrayList<String>());
+                calcRep.get(created).add(nameInput.getText() + " = ");
+                updateRep();
                 nameInput.setText("");
                 created++;
                 processNaming.setText("Please name process " + (created + 1));
@@ -199,14 +222,18 @@ public class createYourOwn extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editing = (editing + 1) % numberProcess;
+                editingTerm = 1;
                 creation();
+                updateEdit();
             }
         });
         previousProcess.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editing = (editing - 1 + numberProcess) % numberProcess;
+                editingTerm = 1;
                 creation();
+                updateEdit();
             }
         });
 
@@ -306,8 +333,14 @@ public class createYourOwn extends JFrame {
                 addTerm.setVisible(false);
                 creation.get(createChain.getSelectedIndex()).setVisible(true);
                 if (createChain.getSelectedIndex() == 6) {
-                    calcRep.add(editing, String.format("%s!(0).", calcRep.get(editing)));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, "!(");
+                        calcRep.get(editing).add(editingTerm + 1, "0).");
+                    } else {
+                        calcRep.get(editing).add("!(");
+                        calcRep.get(editing).add("0).");
+                    }
+
                     updateRep();
                 }
                 populate();
@@ -333,7 +366,23 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+                    }
                 }
                 active.showInformation();
                 String channel = "";
@@ -342,13 +391,30 @@ public class createYourOwn extends JFrame {
                 }
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s%s<%s>.0).", calcRep.get(editing), channel, variableOut.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s<%s>.", channel, variableOut.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s%s<%s>.", calcRep.get(editing), channel, variableOut.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("%s<%s>.", channel, variableOut.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s<%s>.", channel, variableOut.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("%s<%s>.", channel, variableOut.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("%s<%s>.", channel, variableOut.getText()));
+                    }
                 }
 
                 updateRep();
@@ -359,6 +425,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -376,18 +462,51 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s%s(%s).0).", calcRep.get(editing), channelsIn.getText(), inputVariableBind.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s%s(%s).", calcRep.get(editing), channelsIn.getText(), inputVariableBind.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                    }
                 }
 
                 updateRep();
@@ -398,6 +517,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -416,18 +555,51 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
                 } else {
-                    chain.get(editing).add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s{%s}%s.0).", calcRep.get(editing), variableToEncrypt.getText(), keyToUse));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s{%s}%s.", calcRep.get(editing), variableToEncrypt.getText(), keyToUse));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    } else {
+                        calcRep.get(editing).add(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                    }
                 }
 
                 updateRep();
@@ -438,6 +610,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -456,18 +648,51 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%scase %s of {%s}%s in 0).", calcRep.get(editing), bindToDecrypt.getText(), decryptVariable.getText(), keyToUse));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%scase %s of {%s}%s in ", calcRep.get(editing), bindToDecrypt.getText(), decryptVariable.getText(), keyToUse));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    } else {
+                        calcRep.get(editing).add(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                    }
                 }
 
                 updateRep();
@@ -478,6 +703,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -496,18 +741,51 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s%s=(%s,%s).0).", calcRep.get(editing), pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s%s=(%s,%s).", calcRep.get(editing), pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                    }
                 }
 
                 updateRep();
@@ -518,6 +796,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -536,18 +834,52 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%slet (%s,%s)=%s in 0).", calcRep.get(editing), pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit++, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%slet (%s,%s)=%s in ", calcRep.get(editing), pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                    }
                 }
 
                 updateRep();
@@ -558,6 +890,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -576,18 +928,51 @@ public class createYourOwn extends JFrame {
                 } else if (replication) {
                     replicate.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
                 } else {
-                    chain.get(editing).add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    if (editAdd) {
+                        chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+                    }
                 }
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s[%s is %s].0).", calcRep.get(editing), matchA.getText(), matchB.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s[%s is %s].", calcRep.get(editing), matchA.getText(), matchB.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                    }
                 }
 
                 updateRep();
@@ -598,6 +983,26 @@ public class createYourOwn extends JFrame {
                     intCase2Create.setVisible(true);
                 } else if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -617,13 +1022,22 @@ public class createYourOwn extends JFrame {
         endReplicate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                replicate.add(0, new ChainElement(active.CYOprocesses.get(editing)));
-                chain.get(editing).add(active.createChainLink("R", replicate));
+                if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("R", replicate));
+                } else {
+                    chain.get(editing).add(active.createChainLink("R", replicate));
+                }
                 active.showInformation();
                 replicate = new ArrayList<>();
                 replication = false;
                 replicateCreate.setVisible(false);
-                addTerm.setVisible(true);
+                if (editAdd) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEdit();
+                } else {
+                    addTerm.setVisible(true);
+                }
             }
         });
 
@@ -634,13 +1048,29 @@ public class createYourOwn extends JFrame {
                 intCase1Create.setVisible(true);
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%scase %s of 0 : 0).", calcRep.get(editing), caseA.getText()));
-                    calcRep.remove(editing + 1);
+                    calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("case %s of 0 : ", caseA.getText()));
                 } else {
-                    calcRep.add(editing, String.format("%scase %s of 0 : ", calcRep.get(editing), caseA.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("case %s of 0 : ", caseA.getText()));
+                    } else if (editIntCase == 1) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + 1);
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("case %s of 0 : ", caseA.getText()));
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + 1, String.format("0 suc(%s) : ", succCase.getText()));
+
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
+
+                        intCase1Create.setVisible(false);
+                        caseA.setText("");
+                        succCase.setText("");
+                        editPanel.setVisible(true);
+                        editSelection.setVisible(true);
+                        updateEditChain(intCase1chain);
+                        editIntCase = 2;
+                    } else {
+                        calcRep.get(editing).add(String.format("case %s of 0 : ", caseA.getText()));
+                    }
                 }
 
                 updateRep();
@@ -672,13 +1102,13 @@ public class createYourOwn extends JFrame {
                 intCase2Create.setVisible(true);
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s0 suc(%s) : 0).", calcRep.get(editing), succCase.getText()));
-                    calcRep.remove(editing + 1);
+                    calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("0 suc(%s) : ", succCase.getText()));
                 } else {
-                    calcRep.add(editing, String.format("%s0 suc(%s) : ", calcRep.get(editing), succCase.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("0 suc(%s) : ", succCase.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("0 suc(%s) : ", succCase.getText()));
+                    }
                 }
 
                 updateRep();
@@ -689,8 +1119,6 @@ public class createYourOwn extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 intCase2 = false;
                 intCase2Create.setVisible(false);
-                intCase1chain.add(0, new ChainElement(active.CYOprocesses.get(editing)));
-                intCase2chain.add(0, new ChainElement(active.CYOprocesses.get(editing)));
                 if (replication) {
                     replicate.add(active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
                 } else {
@@ -703,6 +1131,10 @@ public class createYourOwn extends JFrame {
                 succCase.setText("");
                 if (replication) {
                     replicateCreate.setVisible(true);
+                } else if (editAdd) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEdit();
                 } else {
                     addTerm.setVisible(true);
                 }
@@ -713,22 +1145,92 @@ public class createYourOwn extends JFrame {
         addArithmetic.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                if (intCase1) {
+                    intCase1chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                } else if (intCase2) {
+                    intCase2chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                } else if (replication) {
+                    replicate.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                } else {
+                    if (editAdd) {
+                        chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    } else if (editReplicate) {
+                        editReplicateChain.remove(editingChain);
+                        editReplicateChain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    } else if (editIntCase == 2) {
+                        intCase1chain.remove(editingChain);
+                        intCase1chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    } else if (editIntCase == 3) {
+                        intCase2chain.remove(editingChain);
+                        intCase2chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    } else if (editTerm) {
+                        chain.get(editing).remove(editingTerm);
+                        chain.get(editing).add(editingTerm, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    } else {
+                        chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+                    }
+                }
+
                 active.showInformation();
 
                 if (replication) {
-                    calcRep.add(editing, calcRep.get(editing).substring(0, calcRep.get(editing).length() - 3));
-                    calcRep.remove(editing + 1);
-                    calcRep.add(editing, String.format("%s%s%s%s.0).", calcRep.get(editing), arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                        replicateEdit++;
+                    } else {
+                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    }
                 } else {
-                    calcRep.add(editing, String.format("%s%s%s%s.", calcRep.get(editing), arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    calcRep.remove(editing + 1);
+                    if (editAdd) {
+                        calcRep.get(editing).add(editingTerm, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    } else if (editReplicate) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    } else if (editIntCase == 2) {
+                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
+                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    } else if (editIntCase == 3) {
+                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
+                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    } else if (editTerm) {
+                        calcRep.get(editing).remove(editingTerm);
+                        calcRep.get(editing).add(editingTerm, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    } else {
+                        calcRep.get(editing).add(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                    }
                 }
 
                 updateRep();
                 arithmeticCreate.setVisible(false);
-                addTerm.setVisible(true);
+                if (intCase1) {
+                    intCase1Create.setVisible(true);
+                } else if (intCase2) {
+                    intCase2Create.setVisible(true);
+                } else if (replication) {
+                    replicateCreate.setVisible(true);
+                } else if (editReplicate) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    updateEditChain(intCase2chain);
+                } else if (editAdd || editTerm) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editAdd = false;
+                    editTerm = false;
+                    nextProcess.setVisible(true);
+                    previousProcess.setVisible(true);
+                    updateEdit();
+                } else {
+                    addTerm.setVisible(true);
+                }
                 arithmeticA.setText("");
                 arithmeticB.setText("");
             }
@@ -826,13 +1328,288 @@ public class createYourOwn extends JFrame {
             }
         });
 
+        // EDIT CHAIN
+
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addOrEdit.setVisible(false);
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editingTerm = 1;
+                updateEdit();
+            }
+        });
+        endEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editReplicate) {
+                    editingChain = 0;
+                    editReplicate = false;
+                    updateEdit();
+                } else if (editIntCase == 2) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editIntCase = 3;
+                    editingChain = 0;
+                    updateEditChain(intCase2chain);
+                } else if (editIntCase == 3) {
+                    editPanel.setVisible(true);
+                    editSelection.setVisible(true);
+                    editIntCase = 0;
+                    editingChain = 0;
+                    updateEdit();
+                } else {
+                    addOrEdit.setVisible(true);
+                    editPanel.setVisible(false);
+                    editSelection.setVisible(false);
+                }
+            }
+        });
+
+        nextTermButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editReplicate) {
+                    editingChain++;
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editingChain++;
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editingChain++;
+                    updateEditChain(intCase2chain);
+                } else {
+                    editingTerm++;
+                    updateEdit();
+                }
+            }
+        });
+
+        prevTermButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editReplicate) {
+                    editingChain--;
+                    updateEditChain(editReplicateChain);
+                } else if (editIntCase == 2) {
+                    editingChain--;
+                    updateEditChain(intCase1chain);
+                } else if (editIntCase == 3) {
+                    editingChain--;
+                    updateEditChain(intCase2chain);
+                } else {
+                    editingTerm--;
+                    updateEdit();
+                }
+            }
+        });
+
+        addTermButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTerm.setVisible(true);
+                editAdd = true;
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+            }
+        });
+
+        delTermButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chain.get(editing).remove(editingTerm);
+                calcRep.get(editing).remove(editingTerm);
+                if (editingTerm >= chain.get(editing).size()) {
+                    editingTerm--;
+                }
+                updateEdit();
+                updateRep();
+            }
+        });
+
+        editTermButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editReplicate) {
+                    editTerm(editReplicateChain.get(editingChain));
+                } else if (editIntCase == 2) {
+                    editTerm(intCase1chain.get(editingChain));
+                } else if (editIntCase == 3) {
+                    editTerm(intCase2chain.get(editingChain));
+                } else {
+                    editTerm(chain.get(editing).get(editingTerm));
+                }
+
+
+//                chain.get(editing).remove(editingTerm);
+//                calcRep.get(editing).remove(editingTerm);
+//                if (editingTerm >= chain.get(editing).size()) {
+//                    editingTerm--;
+//                }
+//                updateEdit();
+//                updateRep();
+            }
+        });
 
     }
 
+    private void editTerm(ArrayList<ChainElement> toEdit) {
+
+    }
+
+    private void editTerm(ChainElement toEdit) {
+        nextProcess.setVisible(false);
+        previousProcess.setVisible(false);
+        editTerm = true;
+        switch (toEdit.getChain().get(0).getString()) {
+            case "O":
+                outputCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "I":
+                inputCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "E":
+                encryptCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "D":
+                decryptCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "P":
+                createPair.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "S":
+                splitPair.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "R":
+                editReplicateChain = toEdit.getChain().get(1).getChain();
+                editReplicate = true;
+                updateEditChain(editReplicateChain);
+                break;
+            case "M":
+                matchCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+            case "N":
+                intCase1chain = toEdit.getChain().get(2).getChain();
+                intCase2chain = toEdit.getChain().get(4).getChain();
+                integerCaseCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                editIntCase = 1;
+                break;
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+                arithmeticCreate.setVisible(true);
+                editSelection.setVisible(false);
+                editPanel.setVisible(false);
+                break;
+        }
+    }
+
+    private void updateEdit() {
+        if (editingTerm <= 1) {
+            prevTerm.setText("");
+            prevTermButton.setEnabled(false);
+        } else if (chain.get(editing).get(editingTerm - 1).getChain().get(0).getString().equals("R")) {
+            prevTerm.setText("!(-).");
+            prevTermButton.setEnabled(true);
+        } else if (chain.get(editing).get(editingTerm - 1).getChain().get(0).getString().equals("N")) {
+            prevTerm.setText("case " + chain.get(editing).get(editingTerm - 1).getChain().get(1).getString() + " : (-) suc(" + chain.get(editing).get(editingTerm - 1).getChain().get(3).getString() + ") : (-)");
+            prevTermButton.setEnabled(true);
+        } else {
+            prevTerm.setText(active.chainPieceToString(chain.get(editing).get(editingTerm - 1)));
+            prevTermButton.setEnabled(true);
+        }
+        if (chain.get(editing).size() == 1) {
+            currentTerm.setText("0");
+        } else {
+            if (chain.get(editing).get(editingTerm).getChain().get(0).getString().equals("R")) {
+                currentTerm.setText("!(-).");
+            } else if (chain.get(editing).get(editingTerm).getChain().get(0).getString().equals("N")) {
+                currentTerm.setText("case " + chain.get(editing).get(editingTerm).getChain().get(1).getString() + " : (-) suc(" + chain.get(editing).get(editingTerm).getChain().get(3).getString() + ") : (-)");
+            } else {
+                currentTerm.setText(active.chainPieceToString(chain.get(editing).get(editingTerm)));
+            }
+        }
+        if (editingTerm + 1 >= chain.get(editing).size()) {
+            nextTerm.setText("");
+            nextTermButton.setEnabled(false);
+        } else if (chain.get(editing).get(editingTerm + 1).getChain().get(0).getString().equals("R")) {
+            nextTerm.setText("!(-).");
+            nextTermButton.setEnabled(true);
+        } else if (chain.get(editing).get(editingTerm + 1).getChain().get(0).getString().equals("N")) {
+            nextTerm.setText("case " + chain.get(editing).get(editingTerm + 1).getChain().get(1).getString() + " : (-) suc(" + chain.get(editing).get(editingTerm + 1).getChain().get(3).getString() + ") : (-)");
+            nextTermButton.setEnabled(true);
+        } else {
+            nextTerm.setText(active.chainPieceToString(chain.get(editing).get(editingTerm + 1)));
+            nextTermButton.setEnabled(true);
+        }
+    }
+
+    private void updateEditChain(ArrayList<ChainElement> chainToEdit) {
+        if (editingChain == 0) {
+            prevTerm.setText("");
+            prevTermButton.setEnabled(false);
+        } else if (chainToEdit.get(editingChain - 1).getChain().get(0).getString().equals("R")) {
+            prevTerm.setText("!(-).");
+            prevTermButton.setEnabled(true);
+        } else if (chainToEdit.get(editingChain - 1).getChain().get(0).getString().equals("N")) {
+            prevTerm.setText("case " + chainToEdit.get(editingChain - 1).getChain().get(1).getString() + " : (-) suc(" + chainToEdit.get(editingChain - 1).getChain().get(3).getString() + ") : (-)");
+            prevTermButton.setEnabled(true);
+        } else {
+            prevTerm.setText(active.chainPieceToString(chainToEdit.get(editingChain - 1)));
+            prevTermButton.setEnabled(true);
+        }
+        if (chainToEdit.size() == 0) {
+            currentTerm.setText("0");
+        } else {
+            if (chainToEdit.get(editingChain).getChain().get(0).getString().equals("R")) {
+                currentTerm.setText("!(-).");
+            } else if (chainToEdit.get(editingChain).getChain().get(0).getString().equals("N")) {
+                currentTerm.setText("case " + chainToEdit.get(editingChain).getChain().get(1).getString() + " : (-) suc(" + chainToEdit.get(editingChain).getChain().get(3).getString() + ") : (-)");
+            } else {
+                currentTerm.setText(active.chainPieceToString(chainToEdit.get(editingChain)));
+            }
+        }
+        if (editingChain + 1 == chainToEdit.size()) {
+            nextTerm.setText("");
+            nextTermButton.setEnabled(false);
+        } else if (chainToEdit.get(editingChain + 1).getChain().get(0).getString().equals("R")) {
+            nextTerm.setText("!(-).");
+            nextTermButton.setEnabled(true);
+        } else if (chainToEdit.get(editingChain + 1).getChain().get(0).getString().equals("N")) {
+            nextTerm.setText("case " + chainToEdit.get(editingChain + 1).getChain().get(1).getString() + " : (-) suc(" + chainToEdit.get(editingChain + 1).getChain().get(3).getString() + ") : (-)");
+            nextTermButton.setEnabled(true);
+        } else {
+            nextTerm.setText(active.chainPieceToString(chainToEdit.get(editingChain + 1)));
+            nextTermButton.setEnabled(true);
+        }
+    }
+
+
     private void updateRep() {
         calculusRep.setText("");
-        for (String str : calcRep) {
-            calculusRep.append(str + "0\n");
+        for (ArrayList<String> calcRepPiece : calcRep) {
+            for (String str : calcRepPiece) {
+                calculusRep.append(str);
+            }
+            calculusRep.append("0\n");
         }
     }
 
@@ -917,15 +1694,15 @@ public class createYourOwn extends JFrame {
         createWindow.setBackground(new Color(-4407875));
         createWindow.setForeground(new Color(-4407875));
         createWindow.setMinimumSize(new Dimension(1, 1));
-        createWindow.setPreferredSize(new Dimension(500, 400));
+        createWindow.setPreferredSize(new Dimension(600, 520));
         createWindow.setRequestFocusEnabled(true);
         createWindow.setVisible(true);
         calculusShow = new JPanel();
         calculusShow.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 1, new Insets(5, 5, 5, 5), -1, -1));
         calculusShow.setBackground(new Color(-4407875));
-        createWindow.add(calculusShow, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(-1, 250), null, 0, false));
+        createWindow.add(calculusShow, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(-1, 350), null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        calculusShow.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, 1, 1, null, null, null, 0, false));
+        calculusShow.add(scrollPane1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, 1, 1, null, new Dimension(-1, 250), null, 0, false));
         Information = new JTextArea();
         Information.setBackground(new Color(-3289651));
         Information.setEditable(false);
@@ -933,7 +1710,7 @@ public class createYourOwn extends JFrame {
         scrollPane1.setViewportView(Information);
         final JScrollPane scrollPane2 = new JScrollPane();
         scrollPane2.setVisible(true);
-        calculusShow.add(scrollPane2, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, 1, 1, null, null, null, 0, false));
+        calculusShow.add(scrollPane2, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, 1, 1, null, new Dimension(-1, 100), null, 0, false));
         calculusRep = new JTextArea();
         calculusRep.setBackground(new Color(-3289651));
         calculusRep.setEditable(false);
@@ -968,7 +1745,7 @@ public class createYourOwn extends JFrame {
         OKButton1.setText("OK");
         ProcessNames.add(OKButton1, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         creatingCalculus = new JPanel();
-        creatingCalculus.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(16, 1, new Insets(5, 5, 5, 5), -1, -1));
+        creatingCalculus.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(18, 1, new Insets(5, 5, 5, 5), -1, -1));
         creatingCalculus.setBackground(new Color(-4407875));
         creatingCalculus.setEnabled(true);
         creatingCalculus.setForeground(new Color(-4407875));
@@ -984,7 +1761,7 @@ public class createYourOwn extends JFrame {
         addButton.setText("Add");
         addOrEdit.add(addButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         editButton = new JButton();
-        editButton.setEnabled(false);
+        editButton.setEnabled(true);
         editButton.setText("Edit");
         addOrEdit.add(editButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         runButton = new JButton();
@@ -1019,7 +1796,7 @@ public class createYourOwn extends JFrame {
         addTerm.setBackground(new Color(-4407875));
         addTerm.setForeground(new Color(-4407875));
         addTerm.setVisible(false);
-        creatingCalculus.add(addTerm, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(addTerm, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         createChain = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         defaultComboBoxModel1.addElement("Output");
@@ -1046,7 +1823,7 @@ public class createYourOwn extends JFrame {
         outputCreate.setEnabled(true);
         outputCreate.setForeground(new Color(-4407875));
         outputCreate.setVisible(false);
-        creatingCalculus.add(outputCreate, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(outputCreate, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addOutput = new JButton();
         addOutput.setText("Add");
         outputCreate.add(addOutput, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1066,7 +1843,7 @@ public class createYourOwn extends JFrame {
         inputCreate.setEnabled(true);
         inputCreate.setForeground(new Color(-4407875));
         inputCreate.setVisible(false);
-        creatingCalculus.add(inputCreate, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(inputCreate, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addInput = new JButton();
         addInput.setText("Add");
         inputCreate.add(addInput, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1086,7 +1863,7 @@ public class createYourOwn extends JFrame {
         encryptCreate.setEnabled(true);
         encryptCreate.setForeground(new Color(-4407875));
         encryptCreate.setVisible(false);
-        creatingCalculus.add(encryptCreate, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(encryptCreate, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addEncrypt = new JButton();
         addEncrypt.setText("Add");
         encryptCreate.add(addEncrypt, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1106,7 +1883,7 @@ public class createYourOwn extends JFrame {
         decryptCreate.setEnabled(true);
         decryptCreate.setForeground(new Color(-4407875));
         decryptCreate.setVisible(false);
-        creatingCalculus.add(decryptCreate, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(decryptCreate, new com.intellij.uiDesigner.core.GridConstraints(8, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addDecrypt = new JButton();
         addDecrypt.setText("Add");
         decryptCreate.add(addDecrypt, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1129,7 +1906,7 @@ public class createYourOwn extends JFrame {
         createPair.setEnabled(true);
         createPair.setForeground(new Color(-4407875));
         createPair.setVisible(false);
-        creatingCalculus.add(createPair, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(createPair, new com.intellij.uiDesigner.core.GridConstraints(9, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addPairCreate = new JButton();
         addPairCreate.setText("Add");
         createPair.add(addPairCreate, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1152,7 +1929,7 @@ public class createYourOwn extends JFrame {
         splitPair.setEnabled(true);
         splitPair.setForeground(new Color(-4407875));
         splitPair.setVisible(false);
-        creatingCalculus.add(splitPair, new com.intellij.uiDesigner.core.GridConstraints(8, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(splitPair, new com.intellij.uiDesigner.core.GridConstraints(10, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addPairSplit = new JButton();
         addPairSplit.setText("Add");
         splitPair.add(addPairSplit, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1175,7 +1952,7 @@ public class createYourOwn extends JFrame {
         restrictCreate.setEnabled(true);
         restrictCreate.setForeground(new Color(-4407875));
         restrictCreate.setVisible(false);
-        creatingCalculus.add(restrictCreate, new com.intellij.uiDesigner.core.GridConstraints(9, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(restrictCreate, new com.intellij.uiDesigner.core.GridConstraints(11, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JButton button1 = new JButton();
         button1.setText("Add");
         restrictCreate.add(button1, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1198,7 +1975,7 @@ public class createYourOwn extends JFrame {
         replicateCreate.setEnabled(true);
         replicateCreate.setForeground(new Color(-4407875));
         replicateCreate.setVisible(false);
-        creatingCalculus.add(replicateCreate, new com.intellij.uiDesigner.core.GridConstraints(10, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(replicateCreate, new com.intellij.uiDesigner.core.GridConstraints(12, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addReplicate = new JButton();
         addReplicate.setText("Add to Replicate");
         replicateCreate.add(addReplicate, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1226,7 +2003,7 @@ public class createYourOwn extends JFrame {
         matchCreate.setEnabled(true);
         matchCreate.setForeground(new Color(-4407875));
         matchCreate.setVisible(false);
-        creatingCalculus.add(matchCreate, new com.intellij.uiDesigner.core.GridConstraints(11, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(matchCreate, new com.intellij.uiDesigner.core.GridConstraints(13, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addMatch = new JButton();
         addMatch.setText("Add");
         matchCreate.add(addMatch, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1246,8 +2023,9 @@ public class createYourOwn extends JFrame {
         integerCaseCreate.setEnabled(true);
         integerCaseCreate.setForeground(new Color(-4407875));
         integerCaseCreate.setVisible(false);
-        creatingCalculus.add(integerCaseCreate, new com.intellij.uiDesigner.core.GridConstraints(12, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(integerCaseCreate, new com.intellij.uiDesigner.core.GridConstraints(14, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addIntegerCase = new JButton();
+        addIntegerCase.setLabel("Add");
         addIntegerCase.setText("Add");
         integerCaseCreate.add(addIntegerCase, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         caseA = new JTextField();
@@ -1266,7 +2044,7 @@ public class createYourOwn extends JFrame {
         arithmeticCreate.setEnabled(true);
         arithmeticCreate.setForeground(new Color(-4407875));
         arithmeticCreate.setVisible(false);
-        creatingCalculus.add(arithmeticCreate, new com.intellij.uiDesigner.core.GridConstraints(15, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(arithmeticCreate, new com.intellij.uiDesigner.core.GridConstraints(17, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         addArithmetic = new JButton();
         addArithmetic.setText("Add");
         arithmeticCreate.add(addArithmetic, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -1293,7 +2071,7 @@ public class createYourOwn extends JFrame {
         intCase1Create.setBackground(new Color(-4407875));
         intCase1Create.setForeground(new Color(-4407875));
         intCase1Create.setVisible(false);
-        creatingCalculus.add(intCase1Create, new com.intellij.uiDesigner.core.GridConstraints(13, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(intCase1Create, new com.intellij.uiDesigner.core.GridConstraints(15, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         intCase1Select = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel4 = new DefaultComboBoxModel();
         defaultComboBoxModel4.addElement("Output");
@@ -1312,6 +2090,7 @@ public class createYourOwn extends JFrame {
         intCase1Add.setText("Add to chain 1");
         intCase1Create.add(intCase1Add, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         intCase1End = new JButton();
+        intCase1End.setLabel("End chain 1");
         intCase1End.setText("End chain 1");
         intCase1Create.add(intCase1End, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         intCase2Create = new JPanel();
@@ -1319,7 +2098,7 @@ public class createYourOwn extends JFrame {
         intCase2Create.setBackground(new Color(-4407875));
         intCase2Create.setForeground(new Color(-4407875));
         intCase2Create.setVisible(false);
-        creatingCalculus.add(intCase2Create, new com.intellij.uiDesigner.core.GridConstraints(14, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        creatingCalculus.add(intCase2Create, new com.intellij.uiDesigner.core.GridConstraints(16, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         intCase2Select = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel5 = new DefaultComboBoxModel();
         defaultComboBoxModel5.addElement("Output");
@@ -1342,6 +2121,56 @@ public class createYourOwn extends JFrame {
         intCase2End.setLabel("End chain 2");
         intCase2End.setText("End chain 2");
         intCase2Create.add(intCase2End, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editPanel = new JPanel();
+        editPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
+        editPanel.setBackground(new Color(-4407875));
+        editPanel.setForeground(new Color(-4407875));
+        editPanel.setVisible(false);
+        creatingCalculus.add(editPanel, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        nextTermButton = new JButton();
+        nextTermButton.setText("Next Term");
+        editPanel.add(nextTermButton, new com.intellij.uiDesigner.core.GridConstraints(0, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), new Dimension(100, -1), 0, false));
+        prevTermButton = new JButton();
+        prevTermButton.setActionCommand("Prev Term");
+        prevTermButton.setLabel("Prev Term");
+        prevTermButton.setText("Prev Term");
+        editPanel.add(prevTermButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), new Dimension(100, -1), 0, false));
+        nextTerm = new JLabel();
+        nextTerm.setHorizontalAlignment(0);
+        nextTerm.setHorizontalTextPosition(0);
+        nextTerm.setText("Label");
+        editPanel.add(nextTerm, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), null, 0, false));
+        prevTerm = new JLabel();
+        prevTerm.setHorizontalAlignment(0);
+        prevTerm.setHorizontalTextPosition(0);
+        prevTerm.setText("Label");
+        editPanel.add(prevTerm, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(100, -1), null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel2.setBackground(new Color(-4407875));
+        editPanel.add(panel2, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-4517351)), null));
+        currentTerm = new JLabel();
+        currentTerm.setText("Label");
+        panel2.add(currentTerm, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editSelection = new JPanel();
+        editSelection.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+        editSelection.setBackground(new Color(-4407875));
+        editSelection.setForeground(new Color(-4407875));
+        editSelection.setVisible(false);
+        creatingCalculus.add(editSelection, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        addTermButton = new JButton();
+        addTermButton.setText("Add Term");
+        editSelection.add(addTermButton, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(70, -1), null, 0, false));
+        editTermButton = new JButton();
+        editTermButton.setText("Edit Term");
+        editSelection.add(editTermButton, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(70, -1), null, 0, false));
+        delTermButton = new JButton();
+        delTermButton.setText("Delete Term");
+        editSelection.add(delTermButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(70, -1), null, 0, false));
+        endEditButton = new JButton();
+        endEditButton.setText("Finish");
+        editSelection.add(endEditButton, new com.intellij.uiDesigner.core.GridConstraints(0, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, 1, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(70, -1), null, 0, false));
         createVariables = new JPanel();
         createVariables.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(2, 5, new Insets(5, 5, 5, 5), -1, -1));
         createVariables.setBackground(new Color(-4407875));

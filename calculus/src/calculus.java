@@ -558,7 +558,7 @@ public class calculus {
         wmfChain.add(wmfBob);
         // Execute
         outputProcesses();
-        System.out.println(chainToString(wmfChain, activeProcesses));
+        gui.calcRep.setText(chainToString(wmfChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -674,7 +674,7 @@ public class calculus {
         tester.add(bobProcess);
 //        tester.add(intruderProcess);
         outputProcesses();
-        System.out.println(chainToString(tester, activeProcesses));
+        gui.calcRep.setText(chainToString(tester, activeProcesses));
 
         while(!proceed){
             try {
@@ -753,7 +753,7 @@ public class calculus {
         chain.add(temp);
 
         outputProcesses();
-        System.out.println(chainToString(chain, activeProcesses));
+        gui.calcRep.setText(chainToString(chain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -934,7 +934,7 @@ public class calculus {
         nsChain.add(nsBChain);
 
         outputProcesses();
-        System.out.println(chainToString(nsChain, activeProcesses));
+        gui.calcRep.setText(chainToString(nsChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -1143,7 +1143,7 @@ public class calculus {
         nsChain.add(nsIChain);
 
         outputProcesses();
-        System.out.println(chainToString(nsChain, activeProcesses));
+        gui.calcRep.setText(chainToString(nsChain, activeProcesses));
         while(!proceed){
             try {
                 Thread.sleep(100);
@@ -1234,6 +1234,11 @@ public class calculus {
                     }
                 }
             }
+            for(Process p : CYOprocesses){
+                if(p.processName.equals(newProcess.processName)){
+                    newProcess.setKeys(p.keys);
+                }
+            }
             activeProcesses.add(newProcess);
             createGui.chain.get(i).remove(0);
             createGui.chain.get(i).add(0, new ChainElement(newProcess));
@@ -1267,6 +1272,9 @@ public class calculus {
             }
         }
 
+        gui.calcRep.setText(chainToString(temp, activeProcesses));
+
+
 
         parseChain(temp);
 
@@ -1299,7 +1307,7 @@ public class calculus {
         createGui.clearText();
 
         //Channels
-        createGui.updateInfo("\nChannels\n");
+        createGui.updateInfo("Channels\n");
         for(Map.Entry<String, Term> channel : channelsCYO.entrySet()){
             String temp = " - " + channel.getValue().returnValue();
             createGui.updateInfo(temp+"\n");
@@ -1307,7 +1315,7 @@ public class calculus {
 
         // Update variables
         for(Process output : CYOprocesses) {
-            createGui.updateInfo(output.processName + "\n");
+            createGui.updateInfo("\n" + output.processName + "\n");
             createGui.updateInfo(" - Terms\n");
             for (Map.Entry<String, Term> entry : output.terms.entrySet()) {
                 createGui.updateInfo("   - " + entry.getKey() + ": " + entry.getValue().returnValue() + "\n");
@@ -1324,20 +1332,21 @@ public class calculus {
         for(Process process : processes) {
             for (ArrayList<ChainElement> processChain : chain) {
                 if (processChain.get(0).getProcess() == process) {
+                    output = output + process.processName + " = ";
                     for (int i = 1; i < processChain.size(); i++) {
                         output = output + chainPieceToString(processChain.get(i));
                     }
-                    output = output + "0 | ";
+                    output = output + "0\n\n";
                 }
             }
         }
         if(output.equals("")){
             return output;
         }
-        return output.substring(0, output.length()-3);
+        return output.substring(0, output.length());
     }
 
-    private String chainPieceToString(ChainElement chainElement) {
+    public String chainPieceToString(ChainElement chainElement) {
         String output = "";
         switch(chainElement.getChain().get(0).getString()){
             case "O":
@@ -1352,10 +1361,22 @@ public class calculus {
                 output = String.format("%s(%s).", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
                 break;
             case "E":
-                output = String.format("{%s}%s.", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString());
+                String key = "";
+                if(chainElement.getChain().get(2).getString().length() > 5){
+                    key = chainElement.getChain().get(2).getString().substring(0,5);
+                } else {
+                    key = chainElement.getChain().get(2).getString();
+                }
+                output = String.format("{%s}%s--.", chainElement.getChain().get(1).getString(), key);
                 break;
             case "D":
-                output =  String.format("case %s of {%s}%s in ", chainElement.getChain().get(1).getString(), chainElement.getChain().get(3).getString(), chainElement.getChain().get(2).getString());
+                key = "";
+                if(chainElement.getChain().get(2).getString().length() > 5){
+                    key = chainElement.getChain().get(2).getString().substring(0,5);
+                } else {
+                    key = chainElement.getChain().get(2).getString();
+                }
+                output =  String.format("case %s of {%s}%s-- in ", chainElement.getChain().get(1).getString(), chainElement.getChain().get(3).getString(), key);
                 break;
             case "P":
                 output = String.format("%s=(%s,%s).", chainElement.getChain().get(1).getString(), chainElement.getChain().get(2).getString(), chainElement.getChain().get(3).getString());
