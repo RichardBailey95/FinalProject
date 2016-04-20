@@ -7,7 +7,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Created by Richard on 01/04/2016.
@@ -44,8 +48,6 @@ public class createYourOwn extends JFrame {
     private JPanel outputCreate;
     private JPanel inputCreate;
     private JPanel createChannels;
-    private JComboBox channelB;
-    private JComboBox channelA;
     private JButton createChannelButton;
     private JButton finishedChannels;
     private JTextField channelName;
@@ -134,7 +136,7 @@ public class createYourOwn extends JFrame {
 
     private calculus active;
 
-    private ArrayList<ArrayList<String>> calcRep = new ArrayList<>();
+    private ArrayList<ArrayList<ArrayList<String>>> calcRep = new ArrayList<>();
 
     private boolean replication = false;
     private boolean intCase1 = false;
@@ -142,6 +144,7 @@ public class createYourOwn extends JFrame {
     private boolean editAdd = false;
     private boolean editTerm = false;
     private boolean editReplicate = false;
+    private boolean editingActive = false;
 
 
     private int numberProcess;
@@ -152,16 +155,14 @@ public class createYourOwn extends JFrame {
     private int editingChain = 0;
     private int editIntCase = 0;
 
-    public ArrayList<ArrayList<ChainElement>> chain = new ArrayList<>();
-    public ArrayList<ChainElement> replicate = new ArrayList<>();
-    public ArrayList<ChainElement> intCase1chain = new ArrayList<>();
-    public ArrayList<ChainElement> intCase2chain = new ArrayList<>();
+    ArrayList<ArrayList<ChainElement>> chain = new ArrayList<>();
+    private ArrayList<ChainElement> replicate = new ArrayList<>();
+    private ArrayList<ChainElement> intCase1chain = new ArrayList<>();
+    private ArrayList<ChainElement> intCase2chain = new ArrayList<>();
     private ArrayList<ChainElement> editReplicateChain;
-    private ArrayList<ChainElement> editIntChain1;
-    private ArrayList<ChainElement> editIntChain2;
 
 
-    public createYourOwn(calculus main) {
+    createYourOwn(calculus main) {
         super("Create Your Own");
 
 
@@ -188,1403 +189,1293 @@ public class createYourOwn extends JFrame {
 
 
         // CREATE AND NAME PROCESSES
-        OKButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                numberProcess = Integer.parseInt(numberOfProcessesInput.getText());
-                ProcessNumber.setVisible(false);
-                ProcessNames.setVisible(true);
-            }
+        OKButton.addActionListener(e -> {
+            numberProcess = Integer.parseInt(numberOfProcessesInput.getText());
+            ProcessNumber.setVisible(false);
+            ProcessNames.setVisible(true);
         });
-        OKButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                active.createProcess(nameInput.getText());
-                chain.add(new ArrayList<ChainElement>());
-                chain.get(created).add(new ChainElement(active.CYOprocesses.get(created)));
-                calcRep.add(new ArrayList<String>());
-                calcRep.get(created).add(nameInput.getText() + " = ");
-                updateRep();
-                nameInput.setText("");
-                created++;
-                processNaming.setText("Please name process " + (created + 1));
-                if (created == numberProcess) {
-                    ProcessNames.setVisible(false);
-                    creatingCalculus.setVisible(true);
-                    populateChoices();
-                    creation();
-                }
+        OKButton1.addActionListener(e -> {
+            active.createProcess(nameInput.getText());
+            chain.add(new ArrayList<>());
+            chain.get(created).add(new ChainElement(active.CYOprocesses.get(created)));
+            calcRep.add(new ArrayList<>());
+            calcRep.get(created).add(new ArrayList<>(singletonList(nameInput.getText() + " = ")));
+            updateRep();
+            nameInput.setText("");
+            created++;
+            processNaming.setText("Please name process " + (created + 1));
+            if (created == numberProcess) {
+                ProcessNames.setVisible(false);
+                creatingCalculus.setVisible(true);
+                populateChoices();
+                creation();
             }
         });
 
         // CHANGE EDITING PROCESS
-        nextProcess.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editing = (editing + 1) % numberProcess;
-                editingTerm = 1;
-                creation();
-                updateEdit();
-            }
+        nextProcess.addActionListener(e -> {
+            editing = (editing + 1) % numberProcess;
+            editingTerm = 1;
+            creation();
+            updateEdit();
         });
-        previousProcess.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editing = (editing - 1 + numberProcess) % numberProcess;
-                editingTerm = 1;
-                creation();
-                updateEdit();
-            }
+        previousProcess.addActionListener(e -> {
+            editing = (editing - 1 + numberProcess) % numberProcess;
+            editingTerm = 1;
+            creation();
+            updateEdit();
         });
 
 
         // Finished variables
-        finishedButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createVariables.setVisible(false);
-                creatingCalculus.setVisible(true);
-            }
+        finishedButton.addActionListener(e -> {
+            createVariables.setVisible(false);
+            creatingCalculus.setVisible(true);
         });
         // Add variable
-        inputButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                active.input(comboBox1.getSelectedIndex(), textField1.getText(), textField2.getText(), numberCheckBox.isSelected());
-                textField1.setText("");
-                textField2.setText("");
-            }
+        inputButton.addActionListener(e -> {
+            active.input(comboBox1.getSelectedIndex(), textField1.getText(), textField2.getText(), numberCheckBox.isSelected());
+            textField1.setText("");
+            textField2.setText("");
         });
 
         // Add channel
-        createChannelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                active.createChannelCYO(channelName.getText());
-                channelName.setText("");
-                active.showInformation();
-            }
+        createChannelButton.addActionListener(e -> {
+            active.createChannelCYO(channelName.getText());
+            channelName.setText("");
+            active.showInformation();
         });
-        finishedChannels.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createChannels.setVisible(false);
-                creatingCalculus.setVisible(true);
-            }
+        finishedChannels.addActionListener(e -> {
+            createChannels.setVisible(false);
+            creatingCalculus.setVisible(true);
         });
 
         // Add key
-        createKeyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                active.createKey(comboBox2.getSelectedIndex(), comboBox3.getSelectedIndex());
-            }
-        });
-        finishedKeyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createKeys.setVisible(false);
-                creatingCalculus.setVisible(true);
-            }
+        createKeyButton.addActionListener(e -> active.createKey(comboBox2.getSelectedIndex(), comboBox3.getSelectedIndex()));
+        finishedKeyButton.addActionListener(e -> {
+            createKeys.setVisible(false);
+            creatingCalculus.setVisible(true);
         });
 
         // ADD, EDIT, RUN
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOrEdit.setVisible(false);
-                nextProcess.setVisible(false);
-                previousProcess.setVisible(false);
-                addTerm.setVisible(true);
-            }
-        });
-        runButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                active.process = 6;
-            }
-        });
-        addChannelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createChannels.setVisible(true);
-                creatingCalculus.setVisible(false);
-            }
-        });
-        addKeyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createKeys.setVisible(true);
-                creatingCalculus.setVisible(false);
-                populate();
-            }
-        });
-        addVariableButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createVariables.setVisible(true);
-                creatingCalculus.setVisible(false);
-            }
+        addButton.addActionListener(e -> {
+            addOrEdit.setVisible(false);
+            nextProcess.setVisible(false);
+            previousProcess.setVisible(false);
+            addTerm.setVisible(true);
         });
 
-        createButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addTerm.setVisible(false);
-                creation.get(createChain.getSelectedIndex()).setVisible(true);
-                if (createChain.getSelectedIndex() == 6) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, "!(");
-                        calcRep.get(editing).add(editingTerm + 1, "0).");
-                    } else {
-                        calcRep.get(editing).add("!(");
-                        calcRep.get(editing).add("0).");
-                    }
+        runButton.addActionListener(e -> active.process = 6);
 
-                    updateRep();
+        addChannelButton.addActionListener(e -> {
+            createChannels.setVisible(true);
+            creatingCalculus.setVisible(false);
+        });
+
+        addKeyButton.addActionListener(e -> {
+            createKeys.setVisible(true);
+            creatingCalculus.setVisible(false);
+            populate();
+        });
+
+        addVariableButton.addActionListener(e -> {
+            createVariables.setVisible(true);
+            creatingCalculus.setVisible(false);
+        });
+
+        createButton.addActionListener(e -> {
+            addTerm.setVisible(false);
+            creation.get(createChain.getSelectedIndex()).setVisible(true);
+            if (createChain.getSelectedIndex() == 6) {
+                if (editAdd) {
+                    calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList("!(")));
+                    calcRep.get(editing).add(editingTerm + 1, new ArrayList<>(singletonList("0).")));
+                } else {
+                    calcRep.get(editing).add(new ArrayList<>(singletonList("!(")));
+                    calcRep.get(editing).add(new ArrayList<>(singletonList("0).")));
                 }
-                populate();
+
+                updateRep();
             }
+            populate();
         });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addTerm.setVisible(false);
+        backButton.addActionListener(e -> {
+            addTerm.setVisible(false);
+            if (editingActive) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+            } else {
                 addOrEdit.setVisible(true);
                 nextProcess.setVisible(true);
                 previousProcess.setVisible(true);
             }
         });
 
-        addOutput.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
-                    }
-                }
-                active.showInformation();
-                String channel = "";
-                for (int i = 0; i < channelsOut.getText().length(); i++) {
-                    channel = channel + channelsOut.getText().charAt(i) + "\u0305";
-                }
-
-                if (editAdd && replication) {
-                    calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s<%s>.", channel, variableOut.getText()));
-                    replicateEdit++;
-                } else if (replication) {
-                    calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s<%s>.", channel, variableOut.getText()));
-                } else if (editReplicate && editAdd) {
-                    calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+        addOutput.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editIntCase == 2 && editAdd) {
-                    calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    intCase1chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editIntCase == 3 && editAdd) {
-                    calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    intCase2chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editAdd) {
-                    calcRep.get(editing).add(editingTerm, String.format("%s<%s>.", channel, variableOut.getText()));
+                    chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editReplicate) {
-                    calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                    calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editIntCase == 2) {
-                    calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                    calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editIntCase == 3) {
-                    calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                    calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s<%s>.", channel, variableOut.getText()));
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else if (editTerm) {
-                    calcRep.get(editing).remove(editingTerm);
-                    calcRep.get(editing).add(editingTerm, String.format("%s<%s>.", channel, variableOut.getText()));
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 } else {
-                    calcRep.get(editing).add(String.format("%s<%s>.", channel, variableOut.getText()));
+                    chain.get(editing).add(active.createChainLink("O", channelsOut.getText(), variableOut.getText()));
                 }
+            }
+            active.showInformation();
+            String channel = "";
+            for (int i = 0; i < channelsOut.getText().length(); i++) {
+                channel = channel + channelsOut.getText().charAt(i) + "\u0305";
+            }
 
-                updateRep();
-                outputCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("%s<%s>.", channel, variableOut.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
                 } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s<%s>.", channel, variableOut.getText()));
                 } else {
-                    addTerm.setVisible(true);
+                    calcRep.get(editing).get(editingTerm).add(String.format("%s<%s>.", channel, variableOut.getText()));
                 }
-                channelsOut.setText("");
-                variableOut.setText("");
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s<%s>.", channel, variableOut.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("%s<%s>.", channel, variableOut.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("%s<%s>.", channel, variableOut.getText()))));
             }
-        });
-        addInput.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
-                    }
-                }
-                active.showInformation();
 
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
-                    }
-                }
-
-                updateRep();
-                inputCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                channelsIn.setText("");
-                inputVariableBind.setText("");
-            }
-        });
-        addEncrypt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String keyToUse = key(keyToEncryptWith.getText());
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
-                    }
-                }
-                active.showInformation();
-
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    } else {
-                        calcRep.get(editing).add(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
-                    }
-                }
-
-                updateRep();
-                encryptCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                variableToEncrypt.setText("");
-                keyToEncryptWith.setText("");
-            }
-        });
-        addDecrypt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String keyToUse = key(decryptKey.getText());
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
-                    }
-                }
-                active.showInformation();
-
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    } else {
-                        calcRep.get(editing).add(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
-                    }
-                }
-
-                updateRep();
-                decryptCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                bindToDecrypt.setText("");
-                decryptKey.setText("");
-                decryptVariable.setText("");
-            }
-        });
-        addPairCreate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    }
-                }
-                active.showInformation();
-
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
-                    }
-                }
-
-                updateRep();
-                createPair.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                pairBindCreate.setText("");
-                pairACreate.setText("");
-                pairBCreate.setText("");
-            }
-        });
-        addPairSplit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
-                    }
-                }
-                active.showInformation();
-
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit++, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
-                    }
-                }
-
-                updateRep();
-                splitPair.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                pairBindSplit.setText("");
-                pairASplit.setText("");
-                pairBSplit.setText("");
-            }
-        });
-        addMatch.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink("M", matchA.getText(), matchB.getText()));
-                    }
-                }
-                active.showInformation();
-
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("[%s is %s].", matchA.getText(), matchB.getText()));
-                    }
-                }
-
-                updateRep();
-                matchCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-                matchA.setText("");
-                matchB.setText("");
-            }
-        });
-        addReplicate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                replication = true;
-                replicateCreate.setVisible(false);
-                creation.get(replicateSelection.getSelectedIndex()).setVisible(true);
-                populate();
-            }
-        });
-        endReplicate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editAdd) {
-                    chain.get(editing).add(editingTerm, active.createChainLink("R", replicate));
-                } else {
-                    chain.get(editing).add(active.createChainLink("R", replicate));
-                }
-                active.showInformation();
-                replicate = new ArrayList<>();
-                replication = false;
-                replicateCreate.setVisible(false);
-                if (editAdd) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEdit();
-                } else {
-                    addTerm.setVisible(true);
-                }
-            }
-        });
-
-        addIntegerCase.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                integerCaseCreate.setVisible(false);
+            updateRep();
+            outputCreate.setVisible(false);
+            if (intCase1) {
                 intCase1Create.setVisible(true);
-
-                if (replication) {
-                    calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("case %s of 0 : ", caseA.getText()));
-                } else {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("case %s of 0 : ", caseA.getText()));
-                    } else if (editIntCase == 1) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + 1);
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("case %s of 0 : ", caseA.getText()));
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + 1, String.format("0 suc(%s) : ", succCase.getText()));
-
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
-
-                        intCase1Create.setVisible(false);
-                        caseA.setText("");
-                        succCase.setText("");
-                        editPanel.setVisible(true);
-                        editSelection.setVisible(true);
-                        updateEditChain(intCase1chain);
-                        editIntCase = 2;
-                    } else {
-                        calcRep.get(editing).add(String.format("case %s of 0 : ", caseA.getText()));
-                    }
-                }
-
-                updateRep();
-            }
-        });
-        intCase1Add.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                intCase1 = true;
-                intCase1Create.setVisible(false);
-                creation.get(intCase1Select.getSelectedIndex()).setVisible(true);
-                populate();
-            }
-        });
-        intCase2Add.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                intCase2 = true;
-                intCase2Create.setVisible(false);
-                creation.get(intCase2Select.getSelectedIndex()).setVisible(true);
-                populate();
-            }
-        });
-        intCase1End.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                intCase1 = false;
-                intCase1Create.setVisible(false);
+            } else if (intCase2) {
                 intCase2Create.setVisible(true);
-
-                if (replication) {
-                    calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("0 suc(%s) : ", succCase.getText()));
-                } else {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("0 suc(%s) : ", succCase.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("0 suc(%s) : ", succCase.getText()));
-                    }
-                }
-
-                updateRep();
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
             }
+            channelsOut.setText("");
+            variableOut.setText("");
         });
-        intCase2End.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                intCase2 = false;
-                intCase2Create.setVisible(false);
-                if (replication) {
-                    replicate.add(active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
-                } else {
-                    chain.get(editing).add(active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
-                }
-                active.showInformation();
-                intCase1chain = new ArrayList<>();
-                intCase2chain = new ArrayList<>();
-                caseA.setText("");
-                succCase.setText("");
-                if (replication) {
-                    replicateCreate.setVisible(true);
+
+        addInput.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
                 } else if (editAdd) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEdit();
+                    chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
                 } else {
-                    addTerm.setVisible(true);
+                    chain.get(editing).add(active.createChainLink("I", channelsIn.getText(), inputVariableBind.getText()));
                 }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("%s(%s).", channelsIn.getText(), inputVariableBind.getText()))));
+            }
+
+            updateRep();
+            inputCreate.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            channelsIn.setText("");
+            inputVariableBind.setText("");
+        });
+        addEncrypt.addActionListener(e -> {
+            String keyToUse = key(keyToEncryptWith.getText());
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+            } else if (replication) {
+                replicate.add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                } else {
+                    chain.get(editing).add(active.createChainLink("E", variableToEncrypt.getText(), keyToUse));
+                }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("{%s}%s.", variableToEncrypt.getText(), keyToUse))));
+            }
+
+            updateRep();
+            encryptCreate.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            variableToEncrypt.setText("");
+            keyToEncryptWith.setText("");
+        });
+        addDecrypt.addActionListener(e -> {
+            String keyToUse = key(decryptKey.getText());
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                } else {
+                    chain.get(editing).add(active.createChainLink("D", decryptVariable.getText(), keyToUse, bindToDecrypt.getText()));
+                }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("case %s of {%s}%s in ", decryptVariable.getText(), bindToDecrypt.getText(), keyToUse))));
+            }
+
+            updateRep();
+            decryptCreate.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            bindToDecrypt.setText("");
+            decryptKey.setText("");
+            decryptVariable.setText("");
+        });
+        addPairCreate.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else {
+                    chain.get(editing).add(active.createChainLink("P", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("%s=(%s,%s).", pairBindCreate.getText(), pairACreate.getText(), pairBCreate.getText()))));
+            }
+
+            updateRep();
+            createPair.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            pairBindCreate.setText("");
+            pairACreate.setText("");
+            pairBCreate.setText("");
+        });
+        addPairSplit.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                } else {
+                    chain.get(editing).add(active.createChainLink("S", pairBindSplit.getText(), pairASplit.getText(), pairBSplit.getText()));
+                }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("let (%s,%s)=%s in ", pairASplit.getText(), pairBSplit.getText(), pairBindSplit.getText()))));
+            }
+
+            updateRep();
+            splitPair.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            pairBindSplit.setText("");
+            pairASplit.setText("");
+            pairBSplit.setText("");
+        });
+        addMatch.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+            } else {
+                if (editReplicate && editAdd) {
+                    editReplicateChain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editIntCase == 2 && editAdd) {
+                    intCase1chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editIntCase == 3 && editAdd) {
+                    intCase2chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editAdd) {
+                    chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editReplicate) {
+                    editReplicateChain.remove(editingChain);
+                    editReplicateChain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editIntCase == 2) {
+                    intCase1chain.remove(editingChain);
+                    intCase1chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editIntCase == 3) {
+                    intCase2chain.remove(editingChain);
+                    intCase2chain.add(editingChain, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else if (editTerm) {
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("M", matchA.getText(), matchB.getText()));
+                } else {
+                    chain.get(editing).add(active.createChainLink("M", matchA.getText(), matchB.getText()));
+                }
+            }
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("[%s is %s].", matchA.getText(), matchB.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("[%s is %s].", matchA.getText(), matchB.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("[%s is %s].", matchA.getText(), matchB.getText()))));
+            }
+
+            updateRep();
+            matchCreate.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
+            }
+            matchA.setText("");
+            matchB.setText("");
+        });
+        addReplicate.addActionListener(e -> {
+            replication = true;
+            replicateCreate.setVisible(false);
+            creation.get(replicateSelection.getSelectedIndex()).setVisible(true);
+            populate();
+        });
+        endReplicate.addActionListener(e -> {
+            if (editAdd) {
+                chain.get(editing).add(editingTerm, active.createChainLink("R", replicate));
+            } else {
+                chain.get(editing).add(active.createChainLink("R", replicate));
+            }
+            active.showInformation();
+            replicate = new ArrayList<>();
+            replication = false;
+            replicateCreate.setVisible(false);
+            if (editAdd) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
             }
         });
 
+        addIntegerCase.addActionListener(e -> {
+            integerCaseCreate.setVisible(false);
+            intCase1Create.setVisible(true);
 
-        addArithmetic.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (intCase1) {
-                    intCase1chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                } else if (intCase2) {
-                    intCase2chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                } else if (replication) {
-                    replicate.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                } else {
-                    if (editReplicate && editAdd) {
-                        editReplicateChain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        intCase1chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        intCase2chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editAdd) {
-                        chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editReplicate) {
-                        editReplicateChain.remove(editingChain);
-                        editReplicateChain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editIntCase == 2) {
-                        intCase1chain.remove(editingChain);
-                        intCase1chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editIntCase == 3) {
-                        intCase2chain.remove(editingChain);
-                        intCase2chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else if (editTerm) {
-                        chain.get(editing).remove(editingTerm);
-                        chain.get(editing).add(editingTerm, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    } else {
-                        chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
-                    }
-                }
+            if (replication) {
+                calcRep.get(editing).get(editingTerm).add(calcRep.get(editing).get(editingTerm).size() - 1, String.format("case %s of 0 : ", caseA.getText()));
+            } else {
+                if (editAdd) {
+                    calcRep.get(editing).get(editingTerm).add(String.format("case %s of 0 : ", caseA.getText()));
+                } else if (editIntCase == 1) {
+                    calcRep.get(editing).get(editingTerm).remove(0);
+                    calcRep.get(editing).get(editingTerm).remove(intCase1chain.size());
+                    calcRep.get(editing).get(editingTerm).add(0, String.format("case %s of 0 : ", caseA.getText()));
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + 1, String.format("0 suc(%s) : ", succCase.getText()));
 
-                active.showInformation();
+                    chain.get(editing).remove(editingTerm);
+                    chain.get(editing).add(editingTerm, active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
 
-                if (replication) {
-                    if (editAdd) {
-                        calcRep.get(editing).add(editingTerm + replicateEdit, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                        replicateEdit++;
-                    } else {
-                        calcRep.get(editing).add(calcRep.get(editing).size() - 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    }
-                } else {
-                    if (editReplicate && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editIntCase == 2 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editIntCase == 3 && editAdd) {
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editAdd) {
-                        calcRep.get(editing).add(editingTerm, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editReplicate) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editIntCase == 2) {
-                        calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                        calcRep.get(editing).add(editingTerm + editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editIntCase == 3) {
-                        calcRep.get(editing).remove(editingTerm + intCase1chain.size() + editingChain + 2);
-                        calcRep.get(editing).add(editingTerm + intCase1chain.size() + editingChain + 2, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else if (editTerm) {
-                        calcRep.get(editing).remove(editingTerm);
-                        calcRep.get(editing).add(editingTerm, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    } else {
-                        calcRep.get(editing).add(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
-                    }
-                }
-
-                updateRep();
-                arithmeticCreate.setVisible(false);
-                if (intCase1) {
-                    intCase1Create.setVisible(true);
-                } else if (intCase2) {
-                    intCase2Create.setVisible(true);
-                } else if (replication) {
-                    replicateCreate.setVisible(true);
-                } else if (editReplicate) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
+                    intCase1Create.setVisible(false);
+                    caseA.setText("");
+                    succCase.setText("");
                     editPanel.setVisible(true);
                     editSelection.setVisible(true);
                     updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    updateEditChain(intCase2chain);
-                } else if (editAdd || editTerm) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editAdd = false;
-                    editTerm = false;
-                    nextProcess.setVisible(true);
-                    previousProcess.setVisible(true);
-                    updateEdit();
+                    editIntCase = 2;
                 } else {
-                    addTerm.setVisible(true);
+                    calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("case %s of 0 : ", caseA.getText()))));
                 }
-                arithmeticA.setText("");
-                arithmeticB.setText("");
+            }
+
+            updateRep();
+        });
+        intCase1Add.addActionListener(e -> {
+            intCase1 = true;
+            intCase1Create.setVisible(false);
+            creation.get(intCase1Select.getSelectedIndex()).setVisible(true);
+            populate();
+        });
+        intCase2Add.addActionListener(e -> {
+            intCase2 = true;
+            intCase2Create.setVisible(false);
+            creation.get(intCase2Select.getSelectedIndex()).setVisible(true);
+            populate();
+        });
+        intCase1End.addActionListener(e -> {
+            intCase1 = false;
+            intCase1Create.setVisible(false);
+            intCase2Create.setVisible(true);
+
+            if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("0 suc(%s) : ", succCase.getText()));
+            } else {
+                if (editAdd) {
+                    calcRep.get(editing).get(editingTerm).add(String.format("0 suc(%s) : ", succCase.getText()));
+                } else {
+                    calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("0 suc(%s) : ", succCase.getText()));
+                }
+            }
+
+            updateRep();
+        });
+        intCase2End.addActionListener(e -> {
+            intCase2 = false;
+            intCase2Create.setVisible(false);
+            if (replication) {
+                replicate.add(active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
+            } else {
+                chain.get(editing).add(active.createChainLink("N", caseA.getText(), intCase1chain, succCase.getText(), intCase2chain));
+            }
+            active.showInformation();
+            intCase1chain = new ArrayList<>();
+            intCase2chain = new ArrayList<>();
+            caseA.setText("");
+            succCase.setText("");
+            if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editAdd) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEdit();
+            } else {
+                addTerm.setVisible(true);
             }
         });
 
 
-        backButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                outputCreate.setVisible(false);
-                addTerm.setVisible(true);
-                channelsOut.setText("");
-                variableOut.setText("");
+        addArithmetic.addActionListener(e -> {
+            if (intCase1) {
+                intCase1chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (intCase2) {
+                intCase2chain.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (replication) {
+                replicate.add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editReplicate && editAdd) {
+                editReplicateChain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editIntCase == 2 && editAdd) {
+                intCase1chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editIntCase == 3 && editAdd) {
+                intCase2chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editAdd) {
+                chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editReplicate) {
+                editReplicateChain.remove(editingChain);
+                editReplicateChain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editIntCase == 2) {
+                intCase1chain.remove(editingChain);
+                intCase1chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editIntCase == 3) {
+                intCase2chain.remove(editingChain);
+                intCase2chain.add(editingChain, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else if (editTerm) {
+                chain.get(editing).remove(editingTerm);
+                chain.get(editing).add(editingTerm, active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
+            } else {
+                chain.get(editing).add(active.createChainLink((String) comboBox4.getSelectedItem(), arithmeticA.getText(), arithmeticB.getText()));
             }
-        });
-        backButton2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputCreate.setVisible(false);
-                addTerm.setVisible(true);
-                channelsIn.setText("");
-                inputVariableBind.setText("");
+
+            active.showInformation();
+
+            if (editAdd && replication) {
+                calcRep.get(editing).get(editingTerm).add(replicateEdit, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                replicateEdit++;
+            } else if (replication) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(calcRep.get(editing).get(calcRep.get(editing).size() - 1).size() - 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (intCase1) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (intCase2) {
+                calcRep.get(editing).get(calcRep.get(editing).size() - 1).add(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (editReplicate && editAdd) {
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (editAdd) {
+                if (editIntCase == 2) {
+                    calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                } else if (editIntCase == 3) {
+                    calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                } else {
+                    calcRep.get(editing).get(editingTerm).add(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+                }
+            } else if (editReplicate || (editIntCase == 2)) {
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                calcRep.get(editing).get(editingTerm).add(editingChain + 1, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (editIntCase == 3) {
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                calcRep.get(editing).get(editingTerm).add(intCase1chain.size() + editingChain + 2, String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()));
+            } else if (editTerm) {
+                calcRep.get(editing).remove(editingTerm);
+                calcRep.get(editing).add(editingTerm, new ArrayList<>(singletonList(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()))));
+            } else {
+                calcRep.get(editing).add(new ArrayList<>(singletonList(String.format("%s%s%s.", arithmeticA.getText(), comboBox4.getSelectedItem(), arithmeticB.getText()))));
             }
-        });
-        backButton3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                encryptCreate.setVisible(false);
+
+            updateRep();
+            arithmeticCreate.setVisible(false);
+            if (intCase1) {
+                intCase1Create.setVisible(true);
+            } else if (intCase2) {
+                intCase2Create.setVisible(true);
+            } else if (replication) {
+                replicateCreate.setVisible(true);
+            } else if (editReplicate) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                updateEditChain(intCase2chain);
+            } else if (editAdd || editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editAdd = false;
+                editTerm = false;
+                nextProcess.setVisible(true);
+                previousProcess.setVisible(true);
+                updateEdit();
+            } else {
                 addTerm.setVisible(true);
-                variableToEncrypt.setText("");
-                keyToEncryptWith.setText("");
             }
+            arithmeticA.setText("");
+            arithmeticB.setText("");
         });
-        backButton4.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                decryptCreate.setVisible(false);
+
+
+        backButton1.addActionListener(e -> {
+            outputCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
-                bindToDecrypt.setText("");
-                decryptKey.setText("");
-                decryptVariable.setText("");
             }
+            channelsOut.setText("");
+            variableOut.setText("");
         });
-        backButton5.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createPair.setVisible(false);
+        backButton2.addActionListener(e -> {
+            inputCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
-                pairACreate.setText("");
-                pairBCreate.setText("");
-                pairBindCreate.setText("");
             }
+            channelsIn.setText("");
+            inputVariableBind.setText("");
         });
-        backButton6.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                splitPair.setVisible(false);
+        backButton3.addActionListener(e -> {
+            encryptCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
-                pairASplit.setText("");
-                pairBSplit.setText("");
-                pairBindSplit.setText("");
             }
+            variableToEncrypt.setText("");
+            keyToEncryptWith.setText("");
         });
-        backButton7.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                restrictCreate.setVisible(false);
+        backButton4.addActionListener(e -> {
+            decryptCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
+                addTerm.setVisible(true);
+            }
+            bindToDecrypt.setText("");
+            decryptKey.setText("");
+            decryptVariable.setText("");
+        });
+        backButton5.addActionListener(e -> {
+            createPair.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
+                addTerm.setVisible(true);
+            }
+            pairACreate.setText("");
+            pairBCreate.setText("");
+            pairBindCreate.setText("");
+        });
+        backButton6.addActionListener(e -> {
+            splitPair.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
+                addTerm.setVisible(true);
+            }
+            pairASplit.setText("");
+            pairBSplit.setText("");
+            pairBindSplit.setText("");
+        });
+        backButton7.addActionListener(e -> {
+            restrictCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
             }
         });
 
-        backButton9.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                matchCreate.setVisible(false);
+        backButton9.addActionListener(e -> {
+            matchCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
-                matchA.setText("");
-                matchB.setText("");
+            }
+            matchA.setText("");
+            matchB.setText("");
+        });
+        backButton10.addActionListener(e -> {
+            integerCaseCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
+                addTerm.setVisible(true);
             }
         });
-        backButton10.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                integerCaseCreate.setVisible(false);
+        backButton11.addActionListener(e -> {
+            arithmeticCreate.setVisible(false);
+            if (editTerm) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editTerm = false;
+            } else {
                 addTerm.setVisible(true);
             }
-        });
-        backButton11.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                arithmeticCreate.setVisible(false);
-                addTerm.setVisible(true);
-                arithmeticA.setText("");
-                arithmeticB.setText("");
-            }
+            arithmeticA.setText("");
+            arithmeticB.setText("");
         });
 
         // EDIT CHAIN
 
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addOrEdit.setVisible(false);
+        editButton.addActionListener(e -> {
+            addOrEdit.setVisible(false);
+            editPanel.setVisible(true);
+            editSelection.setVisible(true);
+            editingActive = true;
+            editingTerm = 1;
+            updateEdit();
+        });
+        endEditButton.addActionListener(e -> {
+            if (editReplicate) {
+                editingChain = 0;
+                editReplicate = false;
+                updateEdit();
+            } else if (editIntCase == 2) {
                 editPanel.setVisible(true);
                 editSelection.setVisible(true);
+                editIntCase = 3;
+                editingChain = 0;
+                updateEditChain(intCase2chain);
+            } else if (editIntCase == 3) {
+                editPanel.setVisible(true);
+                editSelection.setVisible(true);
+                editIntCase = 0;
+                editingChain = 0;
                 editingTerm = 1;
+                updateEdit();
+            } else {
+                addOrEdit.setVisible(true);
+                editPanel.setVisible(false);
+                editSelection.setVisible(false);
+                editingActive = false;
+            }
+        });
+
+        nextTermButton.addActionListener(e -> {
+            if (editReplicate) {
+                editingChain++;
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editingChain++;
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editingChain++;
+                updateEditChain(intCase2chain);
+            } else {
+                editingTerm++;
                 updateEdit();
             }
         });
-        endEditButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editReplicate) {
-                    editingChain = 0;
-                    editReplicate = false;
-                    updateEdit();
-                } else if (editIntCase == 2) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editIntCase = 3;
-                    editingChain = 0;
-                    updateEditChain(intCase2chain);
-                } else if (editIntCase == 3) {
-                    editPanel.setVisible(true);
-                    editSelection.setVisible(true);
-                    editIntCase = 0;
-                    editingChain = 0;
-                    updateEdit();
-                } else {
-                    addOrEdit.setVisible(true);
-                    editPanel.setVisible(false);
-                    editSelection.setVisible(false);
-                }
+
+        prevTermButton.addActionListener(e -> {
+            if (editReplicate) {
+                editingChain--;
+                updateEditChain(editReplicateChain);
+            } else if (editIntCase == 2) {
+                editingChain--;
+                updateEditChain(intCase1chain);
+            } else if (editIntCase == 3) {
+                editingChain--;
+                updateEditChain(intCase2chain);
+            } else {
+                editingTerm--;
+                updateEdit();
             }
         });
 
-        nextTermButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editReplicate) {
-                    editingChain++;
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editingChain++;
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editingChain++;
-                    updateEditChain(intCase2chain);
-                } else {
-                    editingTerm++;
-                    updateEdit();
-                }
-            }
+        addTermButton.addActionListener(e -> {
+            addTerm.setVisible(true);
+            editAdd = true;
+            editSelection.setVisible(false);
+            editPanel.setVisible(false);
         });
 
-        prevTermButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editReplicate) {
-                    editingChain--;
-                    updateEditChain(editReplicateChain);
-                } else if (editIntCase == 2) {
-                    editingChain--;
-                    updateEditChain(intCase1chain);
-                } else if (editIntCase == 3) {
-                    editingChain--;
-                    updateEditChain(intCase2chain);
-                } else {
+        delTermButton.addActionListener(e -> {
+            if (editReplicate) {
+                editReplicateChain.remove(editingChain);
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 1);
+                if (editingChain >= editReplicateChain.size()) {
                     editingTerm--;
-                    updateEdit();
                 }
-            }
-        });
-
-        addTermButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addTerm.setVisible(true);
-                editAdd = true;
-                editSelection.setVisible(false);
-                editPanel.setVisible(false);
-            }
-        });
-
-        delTermButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editReplicate) {
-                    editReplicateChain.remove(editingChain);
-                    calcRep.get(editing).remove(editingTerm + editingChain + 1);
-                    if (editingChain >= editReplicateChain.size()) {
-                        editingTerm--;
-                    }
-                    updateEditChain(editReplicateChain);
-                    updateRep();
-                } else if (editIntCase == 2) {
-                    intCase1chain.remove(editingChain);
-                    calcRep.get(editing).remove(editingTerm + editingChain + 2);
-                    if (editingChain >= intCase1chain.size()) {
-                        editingTerm--;
-                    }
-                    updateEditChain(intCase1chain);
-                    updateRep();
-                } else if (editIntCase == 3) {
-                    intCase2chain.remove(editingChain);
-                    calcRep.get(editing).remove(editingTerm + editingChain + 2);
-                    if (editingChain >= intCase2chain.size()) {
-                        editingTerm--;
-                    }
-                    updateEditChain(intCase2chain);
-                    updateRep();
-                } else {
-                    if (chain.get(editing).get(editingTerm).getChain().get(0).getString().equals("R")) {
-                        for (int i = 0; i < chain.get(editing).get(editingTerm).getChain().get(1).getChain().size() + 1; i++) {
-                            calcRep.get(editing).remove(editingTerm);
-                        }
-                        chain.get(editing).remove(editingTerm);
-                    } else if (chain.get(editing).get(editingTerm).getChain().get(0).getString().equals("N")) {
-                        for (int i = 0; i < chain.get(editing).get(editingTerm).getChain().get(2).getChain().size() + chain.get(editing).get(editingTerm).getChain().get(4).getChain().size() + 2; i++) {
-                            calcRep.get(editing).remove(editingTerm);
-                        }
-                        chain.get(editing).remove(editingTerm);
-                    } else {
-                        chain.get(editing).remove(editingTerm);
-                        calcRep.get(editing).remove(editingTerm);
-                    }
-                    if (editingTerm >= chain.get(editing).size()) {
-                        editingTerm--;
-                    }
-                    updateEdit();
-                    updateRep();
+                updateEditChain(editReplicateChain);
+                updateRep();
+            } else if (editIntCase == 2) {
+                intCase1chain.remove(editingChain);
+                calcRep.get(editing).get(editingTerm).remove(editingChain + 2);
+                if (editingChain >= intCase1chain.size()) {
+                    editingTerm--;
                 }
-            }
-        });
-
-        editTermButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (editReplicate) {
-                    editTerm(editReplicateChain.get(editingChain));
-                } else if (editIntCase == 2) {
-                    editTerm(intCase1chain.get(editingChain));
-                } else if (editIntCase == 3) {
-                    editTerm(intCase2chain.get(editingChain));
-                } else {
-                    editTerm(chain.get(editing).get(editingTerm));
+                updateEditChain(intCase1chain);
+                updateRep();
+            } else if (editIntCase == 3) {
+                intCase2chain.remove(editingChain);
+                calcRep.get(editing).get(editingTerm).remove(intCase1chain.size() + editingChain + 2);
+                if (editingChain >= intCase2chain.size()) {
+                    editingTerm--;
                 }
-
-
-//                chain.get(editing).remove(editingTerm);
-//                calcRep.get(editing).remove(editingTerm);
-//                if (editingTerm >= chain.get(editing).size()) {
-//                    editingTerm--;
-//                }
-//                updateEdit();
-//                updateRep();
+                updateEditChain(intCase2chain);
+                updateRep();
+            } else {
+                chain.get(editing).remove(editingTerm);
+                calcRep.get(editing).remove(editingTerm);
+                if (editingTerm >= chain.get(editing).size()) {
+                    editingTerm--;
+                }
+                updateEdit();
+                updateRep();
             }
         });
 
-    }
-
-    private void editTerm(ArrayList<ChainElement> toEdit) {
+        editTermButton.addActionListener(e -> {
+            if (editReplicate) {
+                editTerm(editReplicateChain.get(editingChain));
+            } else if (editIntCase == 2) {
+                editTerm(intCase1chain.get(editingChain));
+            } else if (editIntCase == 3) {
+                editTerm(intCase2chain.get(editingChain));
+            } else {
+                editTerm(chain.get(editing).get(editingTerm));
+            }
+        });
 
     }
 
@@ -1738,9 +1629,11 @@ public class createYourOwn extends JFrame {
 
     private void updateRep() {
         calculusRep.setText("");
-        for (ArrayList<String> calcRepPiece : calcRep) {
-            for (String str : calcRepPiece) {
-                calculusRep.append(str);
+        for (ArrayList<ArrayList<String>> calcRepProcess : calcRep) {
+            for (ArrayList<String> calcRepPiece : calcRepProcess) {
+                for (String str : calcRepPiece) {
+                    calculusRep.append(str);
+                }
             }
             calculusRep.append("0\n");
         }
