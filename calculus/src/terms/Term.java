@@ -1,9 +1,11 @@
 package terms;
 
+import java.io.Serializable;
+
 /**
  * Created by Richard on 10/12/2015.
  */
-public class Term {
+public class Term implements Serializable{
     public String value;
     public int number;
 

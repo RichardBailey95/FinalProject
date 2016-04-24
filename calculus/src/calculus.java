@@ -8,7 +8,7 @@ public class calculus {
     private ArrayList<ArrayList<ChainElement>> outputBuffer = new ArrayList<>();
     public ArrayList<Process> activeProcesses = new ArrayList<>();
     public Map<String, Term> channels = new HashMap<>();
-    private Map<String, Term> channelsCYO = new HashMap<>();
+    public Map<String, Term> channelsCYO = new HashMap<>();
     public Scanner scan;
     private Random rand;
     private calculusGUI gui;
@@ -1249,7 +1249,9 @@ public class calculus {
         }
     }
 
-    private void createYourOwnCalculus(){
+    private void createYourOwnCalculus() throws NullPointerException{
+        activeProcesses.clear();
+
         createGui.setVisible(false);
         initiateCYO();
         gui.cYO();

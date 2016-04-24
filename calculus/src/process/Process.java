@@ -2,6 +2,7 @@ package process;
 
 import terms.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.UUID;
 /**
  * Created by Richard on 10/12/2015.
  */
-public class Process {
+public class Process implements Serializable {
     public String processName;
     public Map<String, Term> terms = new HashMap<String, Term>();
     public Map<Process, String> keys = new HashMap<Process, String>();

@@ -3,12 +3,13 @@ package chains;
 import terms.*;
 import process.Process;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by Richard on 01/02/2016.
  */
-public class ChainElement {
+public class ChainElement implements Serializable {
     private Term term;
     private Process process;
     private String string;
