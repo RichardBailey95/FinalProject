@@ -92,6 +92,9 @@ public class calculus {
         switch(piece.get(0).getString()) {
             case "O":
                 String outputBind = piece.get(2).getString();
+                if(activeProcess.restricted.containsKey(outputBind)){
+                    outputBind = activeProcess.restricted.get(outputBind);
+                }
                 output = activeProcess.output(outputBind);
                 toAdd = new ArrayList<>();
                 channel = piece.get(1).getString();
@@ -128,7 +131,9 @@ public class calculus {
             case "I":
                 channel = piece.get(1).getString();
                 String inputBind = piece.get(2).getString();
-
+                if(activeProcess.restricted.containsKey(inputBind)){
+                    inputBind = activeProcess.restricted.get(inputBind);
+                }
                 int j = outputBuffer.size();
                 for (int k = 0; k < j; k++) {
                     if (channels.containsKey(channel) || activeProcess.channels.containsKey(channel) || activeProcess.terms.containsKey(channel)) {
@@ -157,6 +162,9 @@ public class calculus {
             case "E":
                 String key = piece.get(2).getString();
                 String encryptBind = piece.get(1).getString();
+                if(activeProcess.restricted.containsKey(encryptBind)){
+                    outputBind = activeProcess.restricted.get(encryptBind);
+                }
                 if(activeProcess.terms.containsKey(key)){
                     key = activeProcess.terms.get(key).returnValue();
                 }
@@ -178,7 +186,13 @@ public class calculus {
                 key = piece.get(2).getString();
                 String toDecrypt = piece.get(1).getString();
                 String bindTo = piece.get(3).getString();
-
+                if(activeProcess.restricted.containsKey(toDecrypt)){
+                    toDecrypt = activeProcess.restricted.get(toDecrypt);
+                } else if(activeProcess.restricted.containsKey(bindTo)){
+                    bindTo = activeProcess.restricted.get(bindTo);
+                } else if(activeProcess.restricted.containsKey(key)){
+                    key = activeProcess.restricted.get(key);
+                }
                 if(activeProcess.terms.containsKey(key)){
                     temp = activeProcess.decrypt(toDecrypt, activeProcess.terms.get(key).returnValue(), bindTo);
                 } else {
@@ -222,6 +236,11 @@ public class calculus {
             case "M":
                 String bindA = piece.get(1).getString();
                 String bindB = piece.get(2).getString();
+                if(activeProcess.restricted.containsKey(bindA)){
+                    bindA = activeProcess.restricted.get(bindA);
+                } else if(activeProcess.restricted.containsKey(bindB)){
+                    bindB = activeProcess.restricted.get(bindB);
+                }
 
                 if(activeProcess.terms.get(bindA).returnValue().equals(activeProcess.terms.get(bindB).returnValue())
                         || activeProcess.terms.get(bindA).getNumber() == activeProcess.terms.get(bindB).getNumber()){
@@ -244,6 +263,13 @@ public class calculus {
                 String pair = piece.get(1).getString();
                 bindA = piece.get(2).getString();
                 bindB = piece.get(3).getString();
+                if(activeProcess.restricted.containsKey(pair)){
+                    pair = activeProcess.restricted.get(pair);
+                } else if(activeProcess.restricted.containsKey(bindA)){
+                    bindA = activeProcess.restricted.get(bindA);
+                } else if(activeProcess.restricted.containsKey(bindB)){
+                    bindB = activeProcess.restricted.get(bindB);
+                }
 
                 if(activeProcess.terms.get(pair) instanceof Pair) {
                     Pair toSplit = (Pair) activeProcess.terms.get(pair);
@@ -269,6 +295,13 @@ public class calculus {
                 pair = piece.get(1).getString();
                 bindA = piece.get(2).getString();
                 bindB = piece.get(3).getString();
+                if(activeProcess.restricted.containsKey(pair)){
+                    pair = activeProcess.restricted.get(pair);
+                } else if(activeProcess.restricted.containsKey(bindA)){
+                    bindA = activeProcess.restricted.get(bindA);
+                } else if(activeProcess.restricted.containsKey(bindB)){
+                    bindB = activeProcess.restricted.get(bindB);
+                }
 
                 Pair newPair = new Pair(activeProcess.output(bindA), activeProcess.output(bindB));
                 activeProcess.input(newPair, pair);
@@ -285,7 +318,12 @@ public class calculus {
                 break;
             case "N":
                 String bind = piece.get(1).getString();
-
+                String sucBind = piece.get(3).getString();
+                if(activeProcess.restricted.containsKey(bind)){
+                    bind = activeProcess.restricted.get(bind);
+                } else if(activeProcess.restricted.containsKey(sucBind)){
+                    sucBind = activeProcess.restricted.get(sucBind);
+                }
                 if(activeProcess.terms.get(bind).getNumber() == 0){
                     ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
                     ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(2).getChain());
@@ -294,7 +332,7 @@ public class calculus {
                     parseChain(tempChainInt);
                     toContinue = 3;
                 } else {
-                    activeProcess.input(new Zero(activeProcess.terms.get(bind).successor()), piece.get(3).getString());
+                    activeProcess.input(new Zero(activeProcess.terms.get(bind).successor()), sucBind);
                     ArrayList<ArrayList<ChainElement>> tempChainInt = new ArrayList<>();
                     ArrayList<ChainElement> chainInt = new ArrayList<>(piece.get(4).getChain());
                     chainInt.add(0, new ChainElement(activeProcess));
@@ -306,6 +344,11 @@ public class calculus {
             case "+":
                 String term1 = piece.get(1).getString();
                 String term2 = piece.get(2).getString();
+                if(activeProcess.restricted.containsKey(term1)){
+                    term1 = activeProcess.restricted.get(term1);
+                } else if(activeProcess.restricted.containsKey(term2)){
+                    term2 = activeProcess.restricted.get(term2);
+                }
 
                 ((Zero) activeProcess.terms.get(term1)).add((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
@@ -313,21 +356,33 @@ public class calculus {
             case "-":
                 term1 = piece.get(1).getString();
                 term2 = piece.get(2).getString();
-
+                if(activeProcess.restricted.containsKey(term1)){
+                    term1 = activeProcess.restricted.get(term1);
+                } else if(activeProcess.restricted.containsKey(term2)){
+                    term2 = activeProcess.restricted.get(term2);
+                }
                 ((Zero) activeProcess.terms.get(term1)).subtract((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
                 break;
             case "*":
                 term1 = piece.get(1).getString();
                 term2 = piece.get(2).getString();
-
+                if(activeProcess.restricted.containsKey(term1)){
+                    term1 = activeProcess.restricted.get(term1);
+                } else if(activeProcess.restricted.containsKey(term2)){
+                    term2 = activeProcess.restricted.get(term2);
+                }
                 ((Zero) activeProcess.terms.get(term1)).multiply((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
                 break;
             case "/":
                 term1 = piece.get(1).getString();
                 term2 = piece.get(2).getString();
-
+                if(activeProcess.restricted.containsKey(term1)){
+                    term1 = activeProcess.restricted.get(term1);
+                } else if(activeProcess.restricted.containsKey(term2)){
+                    term2 = activeProcess.restricted.get(term2);
+                }
                 ((Zero) activeProcess.terms.get(term1)).divide((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
                 break;
@@ -346,6 +401,9 @@ public class calculus {
                     case "Key": // Not implemented
                         //gui.updateOutput("Restricted a key " + keys.get(piece.get(3).getString() + " to " + piece.get(1).getProcess().processName));
                         break;
+                    case "Term":
+                        activeProcess.restrict(piece.get(2).getString());
+                        gui.updateOutput("Restricted a term " + piece.get(2).getString() + " to " + activeProcess.restricted.get(piece.get(2).getString()));
                 }
                 toContinue = 2;
                 while(!proceed){
@@ -597,30 +655,30 @@ public class calculus {
         Process a = new Process("Alice");
         activeProcesses.add(a);
         // Create Bob
-        Process b = new Process("Bob");
-        activeProcesses.add(b);
-
-        // Generate symmetric keys
-        server.generateKey(a,b);
-        a.setKey(server.getPublicKey(a,b),b);
-        b.setKey(server.getPublicKey(b,a),a);
+//        Process b = new Process("Bob");
+//        activeProcesses.add(b);
+//
+//        // Generate symmetric keys
+//        server.generateKey(a,b);
+//        a.setKey(server.getPublicKey(a,b),b);
+//        b.setKey(server.getPublicKey(b,a),a);
 
         // Generate channel
-        createChannel(a,b);
+//        createChannel(a,b);
 
         // Populate Alice
 
-        a.setKey(a.generateKey(a, server), server);
-        a.input(new Name(a.getKey(server)), "serverKey");
+//        a.setKey(a.generateKey(a, server), server);
+//        a.input(new Name(a.getKey(server)), "serverKey");
         a.input(new Pair(new Name("I am from a pair in Alice"), new Name("Alice's pair")), "y");
-        a.input(new Zero(10), "z");
+        a.input(new Zero(10), "chan");
         a.input(new Name("This message is encrypted"), "a");
 
-
-        // Populate Bob
-        b.input(new Name("I was born in Bob"), "x");
-        b.input(new Name("This message is encrypted"), "m");
-
+//
+//        // Populate Bob
+//        b.input(new Name("I was born in Bob"), "x");
+//        b.input(new Name("This message is encrypted"), "m");
+//
 
         // See what terms the processes have
         outputProcesses();
@@ -631,47 +689,59 @@ public class calculus {
         activeProcesses.add(i);
 
 
-        // Test communication between two processes and an intruder watching
-        ChainElement restrict = createChainLink("Res", "Chan", getChannel(a,b));
-        ChainElement test = createChainLink("E", "a", a.getKey(b));
-        ChainElement ns = createChainLink("O", getChannel(a,b), "a");
-        ChainElement test2 = createChainLink("I", getChannel(b, a), "y");
-        ChainElement match = createChainLink("M", "y", "m");
-        ChainElement decryptTest2 = createChainLink("D", "y", b.getKey(a), "y");
-        ChainElement reply = createChainLink("O", getChannel(b, a), "x");
-        ChainElement accept = createChainLink("I", getChannel(a, b), "a");
-        ChainElement test3 = createChainLink("O", getChannel(a, b), "y");
-        //ChainElement replicate = createChainLink("R", test3);
-        ChainElement test4 = createChainLink("I", getChannel(b, a), "z");
-        ChainElement pairSplit = createChainLink("S", "z", "za", "zb");
-        ChainElement intrude = createChainLink("I", getChannel(a, b), "x");
-        ChainElement intrude2 = createChainLink("I", getChannel(a, b), "y");
-
-
-        // Execute the processes. Alice and Bob run in composition
-        ArrayList<ChainElement> aliceProcess = new ArrayList<>();
-        ArrayList<ChainElement> bobProcess = new ArrayList<>();
-        ArrayList<ChainElement> intruderProcess = new ArrayList<>();
-        aliceProcess.add(new ChainElement(a));
-        bobProcess.add(new ChainElement(b));
-        intruderProcess.add(new ChainElement(i));
-        aliceProcess.add(restrict);
-        aliceProcess.add(test);
-        aliceProcess.add(ns);
-        aliceProcess.add(accept);
-        intruderProcess.add(intrude);
-        intruderProcess.add(intrude2);
-        bobProcess.add(test2);
-        bobProcess.add(decryptTest2);
-        bobProcess.add(match);
-        bobProcess.add(reply);
-        aliceProcess.add(test3);
-       // aliceProcess.add(replicate);
-        bobProcess.add(test4);
-        bobProcess.add(pairSplit);
+        ChainElement out = createChainLink("O", "chan", "a");
+        ArrayList<ChainElement> recurse = new ArrayList<>();
+        recurse.add(createChainLink("Res", "Term", "x"));
+        recurse.add(createChainLink("I", "chan", "x"));
+        recurse.add(createChainLink("O", "chan", "x"));
+        ChainElement rec = createChainLink("R", recurse);
+        ArrayList<ChainElement> process = new ArrayList<>();
+        process.add(new ChainElement(a));
+        process.add(out);
+        process.add(rec);
         ArrayList<ArrayList<ChainElement>> tester = new ArrayList<>();
-        tester.add(aliceProcess);
-        tester.add(bobProcess);
+        tester.add(process);
+
+
+        // Test communication between two processes and an intruder watching
+//        ChainElement test = createChainLink("E", "a", a.getKey(b));
+//        ChainElement ns = createChainLink("O", getChannel(a,b), "a");
+//        ChainElement test2 = createChainLink("I", getChannel(b, a), "y");
+//        ChainElement match = createChainLink("M", "y", "m");
+//        ChainElement decryptTest2 = createChainLink("D", "y", b.getKey(a), "y");
+//        ChainElement reply = createChainLink("O", getChannel(b, a), "x");
+//        ChainElement accept = createChainLink("I", getChannel(a, b), "a");
+//        ChainElement test3 = createChainLink("O", getChannel(a, b), "y");
+//        //ChainElement replicate = createChainLink("R", test3);
+//        ChainElement test4 = createChainLink("I", getChannel(b, a), "z");
+//        ChainElement pairSplit = createChainLink("S", "z", "za", "zb");
+//        ChainElement intrude = createChainLink("I", getChannel(a, b), "x");
+//        ChainElement intrude2 = createChainLink("I", getChannel(a, b), "y");
+//
+//
+//        // Execute the processes. Alice and Bob run in composition
+//        ArrayList<ChainElement> aliceProcess = new ArrayList<>();
+//        ArrayList<ChainElement> bobProcess = new ArrayList<>();
+//        ArrayList<ChainElement> intruderProcess = new ArrayList<>();
+//        aliceProcess.add(new ChainElement(a));
+//        bobProcess.add(new ChainElement(b));
+//        intruderProcess.add(new ChainElement(i));
+//        aliceProcess.add(test);
+//        aliceProcess.add(ns);
+//        aliceProcess.add(accept);
+//        intruderProcess.add(intrude);
+//        intruderProcess.add(intrude2);
+//        bobProcess.add(test2);
+//        bobProcess.add(decryptTest2);
+//        bobProcess.add(match);
+//        bobProcess.add(reply);
+//        aliceProcess.add(test3);
+//       // aliceProcess.add(replicate);
+//        bobProcess.add(test4);
+//        bobProcess.add(pairSplit);
+//        ArrayList<ArrayList<ChainElement>> tester = new ArrayList<>();
+//        tester.add(aliceProcess);
+//        tester.add(bobProcess);
 //        tester.add(intruderProcess);
         outputProcesses();
         gui.calcRep.setText(chainToString(tester, activeProcesses));
@@ -814,38 +884,22 @@ public class calculus {
         nsS.input(new Name(nsS.getPublicKey(nsA, nsB)), "KeyAB");
 
         ArrayList<ChainElement> nsAChain = new ArrayList<>();
-        ChainElement nsA1 = createChainLink("P", "pairA", "A", "B");
-        ChainElement nsA2 = createChainLink("P", "out", "pairA", "NonceA");
-        ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), "out");
-        ChainElement nsA4 = createChainLink("I", getChannel(nsA, nsS), "x");
-        ChainElement nsA5 = createChainLink("D", "x", nsA.getKey(nsS), "y");
-        ChainElement nsA6 = createChainLink("S", "y", "a", "temp");
-        ChainElement nsA7 = createChainLink("S", "temp", "b", "temp");
-        ChainElement nsA8 = createChainLink("S", "temp", "c", "d");
-        ChainElement nsA9 = createChainLink("M", "a", "NonceA");
-        ChainElement nsA10 = createChainLink("O", getChannel(nsA, nsB), "d");
-        ChainElement nsA11 = createChainLink("I", getChannel(nsA, nsB), "x");
-        ChainElement nsA12 = createChainLink("D", "x", "b", "e");
-        ChainElement nsA13 = createChainLink("+", "e", "1");
-        ChainElement nsA14 = createChainLink("E", "e", "b");
-        ChainElement nsA15 = createChainLink("O", getChannel(nsA, nsB), "e");
-
         nsAChain.add(new ChainElement(nsA));
-        nsAChain.add(nsA1);
-        nsAChain.add(nsA2);
-        nsAChain.add(nsA3);
-        nsAChain.add(nsA4);
-        nsAChain.add(nsA5);
-        nsAChain.add(nsA6);
-        nsAChain.add(nsA7);
-        nsAChain.add(nsA8);
-        nsAChain.add(nsA9);
-        nsAChain.add(nsA10);
-        nsAChain.add(nsA11);
-        nsAChain.add(nsA12);
-        nsAChain.add(nsA13);
-        nsAChain.add(nsA14);
-        nsAChain.add(nsA15);
+        nsAChain.add(createChainLink("P", "pairA", "A", "B"));
+        nsAChain.add(createChainLink("P", "out", "pairA", "NonceA"));
+        nsAChain.add(createChainLink("O", getChannel(nsA, nsS), "out"));
+        nsAChain.add(createChainLink("I", getChannel(nsA, nsS), "x"));
+        nsAChain.add(createChainLink("D", "x", nsA.getKey(nsS), "y"));
+        nsAChain.add(createChainLink("S", "y", "a", "temp"));
+        nsAChain.add(createChainLink("S", "temp", "b", "temp"));
+        nsAChain.add(createChainLink("S", "temp", "c", "d"));
+        nsAChain.add(createChainLink("M", "a", "NonceA"));
+        nsAChain.add(createChainLink("O", getChannel(nsA, nsB), "d"));
+        nsAChain.add(createChainLink("I", getChannel(nsA, nsB), "x"));
+        nsAChain.add(createChainLink("D", "x", "b", "e"));
+        nsAChain.add(createChainLink("+", "e", "1"));
+        nsAChain.add(createChainLink("E", "e", "b"));
+        nsAChain.add(createChainLink("O", getChannel(nsA, nsB), "e"));
 
         // Clean up extra to make pretty
 //        ChainElement del1 = createChainLink("Del", nsA, "pairA");
@@ -1000,114 +1054,42 @@ public class calculus {
         nsI.input(new Name(nsA.processName), "y");
 
         ArrayList<ChainElement> nsAChain = new ArrayList<>();
-        ChainElement nsA1 = createChainLink("P", "pairA", "A", "B");
-        ChainElement nsA2 = createChainLink("P", "out", "pairA", "NonceA");
-        ChainElement nsA3 = createChainLink("O", getChannel(nsA, nsS), "out");
-        ChainElement nsA4 = createChainLink("I", getChannel(nsA, nsS), "x");
-        ChainElement nsA5 = createChainLink("D", "x", nsA.getKey(nsS), "y");
-        ChainElement nsA6 = createChainLink("S", "y", "a", "temp");
-        ChainElement nsA7 = createChainLink("S", "temp", "b", "temp");
-        ChainElement nsA8 = createChainLink("S", "temp", "c", "d");
-        ChainElement nsA9 = createChainLink("M", "a", "NonceA");
-
-//        ChainElement nsA10 = createChainLink("O", getChannel(nsA, nsB), nsB, "d");
-//        ChainElement nsA11 = createChainLink("I", getChannel(nsA, nsB), nsB, "x");
-//        ChainElement nsA12 = createChainLink("D", "x", "b", "e");
-//        ChainElement nsA13 = createChainLink("+", "e", "1");
-//        ChainElement nsA14 = createChainLink("E", "e", "b");
-//        ChainElement nsA15 = createChainLink("O", getChannel(nsA, nsB), nsB, "e");
-
         nsAChain.add(new ChainElement(nsA));
-        nsAChain.add(nsA1);
-        nsAChain.add(nsA2);
-        nsAChain.add(nsA3);
-        nsAChain.add(nsA4);
-        nsAChain.add(nsA5);
-        nsAChain.add(nsA6);
-        nsAChain.add(nsA7);
-        nsAChain.add(nsA8);
-        nsAChain.add(nsA9);
-//        nsAChain.add(nsA10);
-//        nsAChain.add(nsA11);
-//        nsAChain.add(nsA12);
-//        nsAChain.add(nsA13);
-//        nsAChain.add(nsA14);
-//        nsAChain.add(nsA15);
-
-        // Clean up extra to make pretty
-//        ChainElement del1 = createChainLink("Del", nsA, "pairA");
-//        ChainElement del2 = createChainLink("Del", nsA, "temp");
-//        ChainElement del3 = createChainLink("Del", nsA, "d");
-//        ChainElement del4 = createChainLink("Del", nsA, "x");
-//        ChainElement del5 = createChainLink("Del", nsA, "out");
-//        ChainElement del6 = createChainLink("Del", nsA, "a");
-//        ChainElement del7 = createChainLink("Del", nsA, "c");
-//        nsAChain.add(del1);
-//        nsAChain.add(del2);
-//        nsAChain.add(del3);
-//        nsAChain.add(del4);
-//        nsAChain.add(del5);
-//        nsAChain.add(del6);
-//        nsAChain.add(del7);
-
+        nsAChain.add(createChainLink("P", "pairA", "A", "B"));
+        nsAChain.add(createChainLink("P", "out", "pairA", "NonceA"));
+        nsAChain.add(createChainLink("O", getChannel(nsA, nsS), "out"));
+        nsAChain.add(createChainLink("I", getChannel(nsA, nsS), "x"));
+        nsAChain.add(createChainLink("D", "x", nsA.getKey(nsS), "y"));
+        nsAChain.add(createChainLink("S", "y", "a", "temp"));
+        nsAChain.add(createChainLink("S", "temp", "b", "temp"));
+        nsAChain.add(createChainLink("S", "temp", "c", "d"));
+        nsAChain.add(createChainLink("M", "a", "NonceA"));
 
         ArrayList<ChainElement> nsSChain = new ArrayList<>();
-        ChainElement nsS1 = createChainLink("I", getChannel(nsS, nsA), "temp");
-        ChainElement nsS2 = createChainLink("S", "temp", "temp", "c");
-        ChainElement nsS3 = createChainLink("S", "temp", "a", "b");
-        ChainElement nsS4 = createChainLink("P", "d", "KeyAB", "a");
-        ChainElement nsS5 = createChainLink("E", "d", nsS.getKey(nsB));
-        ChainElement nsS6 = createChainLink("P", "out", "b", "d");
-        ChainElement nsS7 = createChainLink("P", "out", "KeyAB", "out");
-        ChainElement nsS8 = createChainLink("P", "out", "c", "out");
-        ChainElement nsS9 = createChainLink("E", "out", nsS.getKey(nsA));
-        ChainElement nsS10 = createChainLink("O", getChannel(nsA, nsS), "out");
-
         nsSChain.add(new ChainElement(nsS));
-        nsSChain.add(nsS1);
-        nsSChain.add(nsS2);
-        nsSChain.add(nsS3);
-        nsSChain.add(nsS4);
-        nsSChain.add(nsS5);
-        nsSChain.add(nsS6);
-        nsSChain.add(nsS7);
-        nsSChain.add(nsS8);
-        nsSChain.add(nsS9);
-        nsSChain.add(nsS10);
-
-//        ChainElement delS = createChainLink("Del", nsS, "a");
-//        ChainElement delS1 = createChainLink("Del", nsS, "b");
-//        ChainElement delS2 = createChainLink("Del", nsS, "c");
-//        ChainElement delS3 = createChainLink("Del", nsS, "d");
-//        nsAChain.add(delS3);
-//        nsAChain.add(delS2);
-//        nsAChain.add(delS);
-//        nsAChain.add(delS1);
-
+        nsSChain.add(createChainLink("I", getChannel(nsS, nsA), "temp"));
+        nsSChain.add(createChainLink("S", "temp", "temp", "c"));
+        nsSChain.add(createChainLink("S", "temp", "a", "b"));
+        nsSChain.add(createChainLink("P", "d", "KeyAB", "a"));
+        nsSChain.add(createChainLink("E", "d", nsS.getKey(nsB)));
+        nsSChain.add(createChainLink("P", "out", "b", "d"));
+        nsSChain.add(createChainLink("P", "out", "KeyAB", "out"));
+        nsSChain.add(createChainLink("P", "out", "c", "out"));
+        nsSChain.add(createChainLink("E", "out", nsS.getKey(nsA)));
+        nsSChain.add(createChainLink("O", getChannel(nsA, nsS), "out"));
 
         ArrayList<ChainElement> nsBChain = new ArrayList<>();
-        ChainElement nsB1 = createChainLink("I", getChannel(nsA, nsB), "x");
-        ChainElement nsB2 = createChainLink("D", "x", nsB.getKey(nsS), "p");
-        ChainElement nsB3 = createChainLink("S", "p", "y", "z");
-        ChainElement nsB4 = createChainLink("E", "NonceB", "y");
-        ChainElement nsB5 = createChainLink("O", getChannel(nsA, nsB), "NonceB");
-        ChainElement nsB6 = createChainLink("I", getChannel(nsA, nsB), "x");
-        ChainElement nsB7 = createChainLink("D", "x", "y", "e");
-        ChainElement nsB8 = createChainLink("D", "NonceB", "y", "NonceB");
-        ChainElement nsB9 = createChainLink("+", "NonceB", "1");
-        ChainElement nsB10 = createChainLink("M", "NonceB", "e");
-
         nsBChain.add(new ChainElement(nsB));
-        nsBChain.add(nsB1);
-        nsBChain.add(nsB2);
-        nsBChain.add(nsB3);
-        nsBChain.add(nsB4);
-        nsBChain.add(nsB5);
-        nsBChain.add(nsB6);
-        nsBChain.add(nsB7);
-        nsBChain.add(nsB8);
-        nsBChain.add(nsB9);
-        nsBChain.add(nsB10);
+        nsBChain.add(createChainLink("I", getChannel(nsA, nsB), "x"));
+        nsBChain.add(createChainLink("D", "x", nsB.getKey(nsS), "p"));
+        nsBChain.add(createChainLink("S", "p", "y", "z"));
+        nsBChain.add(createChainLink("E", "NonceB", "y"));
+        nsBChain.add(createChainLink("O", getChannel(nsA, nsB), "NonceB"));
+        nsBChain.add(createChainLink("I", getChannel(nsA, nsB), "x"));
+        nsBChain.add(createChainLink("D", "x", "y", "e"));
+        nsBChain.add(createChainLink("D", "NonceB", "y", "NonceB"));
+        nsBChain.add(createChainLink("+", "NonceB", "1"));
+        nsBChain.add(createChainLink("M", "NonceB", "e"));
 
         // Clean up
 //        ChainElement delB = createChainLink("Del", nsB, "x");
@@ -1117,24 +1099,15 @@ public class calculus {
 
         // INTRUDER STARTS HERE
         ArrayList<ChainElement> nsIChain = new ArrayList<ChainElement>();
-        ChainElement nsI0 = createChainLink("P", "interrupt", "x", "y");
-        ChainElement nsI1 = createChainLink("E", "interrupt", nsS.getKey(nsB));
-        ChainElement nsI2 = createChainLink("O", getChannel(nsA, nsB), "interrupt");
-        ChainElement nsI3 = createChainLink("I", getChannel(nsA, nsB), "fromB");
-        ChainElement nsI4 = createChainLink("D", "fromB", "x", "e");
-        ChainElement nsI5 = createChainLink("+", "e", "1");
-        ChainElement nsI6 = createChainLink("E", "e", "x");
-        ChainElement nsI7 = createChainLink("O", getChannel(nsA, nsB), "e");
-
         nsIChain.add(new ChainElement(nsI));
-        nsIChain.add(nsI0);
-        nsIChain.add(nsI1);
-        nsIChain.add(nsI2);
-        nsIChain.add(nsI3);
-        nsIChain.add(nsI4);
-        nsIChain.add(nsI5);
-        nsIChain.add(nsI6);
-        nsIChain.add(nsI7);
+        nsIChain.add(createChainLink("P", "interrupt", "x", "y"));
+        nsIChain.add(createChainLink("E", "interrupt", nsS.getKey(nsB)));
+        nsIChain.add(createChainLink("O", getChannel(nsA, nsB), "interrupt"));
+        nsIChain.add(createChainLink("I", getChannel(nsA, nsB), "fromB"));
+        nsIChain.add(createChainLink("D", "fromB", "x", "e"));
+        nsIChain.add(createChainLink("+", "e", "1"));
+        nsIChain.add(createChainLink("E", "e", "x"));
+        nsIChain.add(createChainLink("O", getChannel(nsA, nsB), "e"));
 
         ArrayList<ArrayList<ChainElement>> nsChain = new ArrayList<>();
         nsChain.add(nsAChain);

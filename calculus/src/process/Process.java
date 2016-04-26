@@ -17,6 +17,8 @@ public class Process implements Serializable {
     public Map<Process, String> keys = new HashMap<Process, String>();
     public Map<String, String> symKeys = new HashMap<String, String>();
     public Map<String, Term> channels = new HashMap<String, Term>();
+    public Map<String, String> restricted = new HashMap<>();
+    private int restrictCount = 0;
 
 
     public Process(String name){
@@ -86,5 +88,11 @@ public class Process implements Serializable {
         }
         generateKey(one, two);
         return symKeys.get(one.processName+two.processName);
+    }
+
+    public void restrict(String binding){
+        String newBind = "N" + Integer.toString(restrictCount);
+        restricted.put(binding, newBind);
+        restrictCount++;
     }
 }
