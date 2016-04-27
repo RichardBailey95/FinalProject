@@ -111,7 +111,7 @@
             </constraints>
             <properties>
               <enabled value="true"/>
-              <text value="General Test"/>
+              <text value="Restriction Example"/>
             </properties>
           </component>
           <component id="fb02f" class="javax.swing.JButton" binding="createOwnButton">

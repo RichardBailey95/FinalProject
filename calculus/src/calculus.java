@@ -64,9 +64,6 @@ public class calculus {
                 }
                 success = iterator;
                 iterator++;
-//                FOR AN INTRUDER
-//                previous = iterator++;
-//                iterator = mainChain.size();
             }else if(continueValue == 2) {
                 mainChain.get(iterator).remove(1);
                 if (mainChain.get(iterator).size() == 1) {
@@ -77,8 +74,6 @@ public class calculus {
                 mainChain.remove(iterator);
             } else if(continueValue == 4) {
                 iterator++;
-            } else if(continueValue == 5){
-                success = iterator;
             }
         }
         return continueValue;
@@ -155,7 +150,7 @@ public class calculus {
                         }
                     } else {
                         k = j;
-                        toContinue = 5;
+                        toContinue = 0;
                     }
                 }
                 break;
@@ -352,6 +347,7 @@ public class calculus {
 
                 ((Zero) activeProcess.terms.get(term1)).add((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
+                outputProcesses();
                 break;
             case "-":
                 term1 = piece.get(1).getString();
@@ -363,6 +359,7 @@ public class calculus {
                 }
                 ((Zero) activeProcess.terms.get(term1)).subtract((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
+                outputProcesses();
                 break;
             case "*":
                 term1 = piece.get(1).getString();
@@ -374,6 +371,7 @@ public class calculus {
                 }
                 ((Zero) activeProcess.terms.get(term1)).multiply((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
+                outputProcesses();
                 break;
             case "/":
                 term1 = piece.get(1).getString();
@@ -385,6 +383,7 @@ public class calculus {
                 }
                 ((Zero) activeProcess.terms.get(term1)).divide((Zero) activeProcess.terms.get(term2));
                 toContinue = 2;
+                outputProcesses();
                 break;
             case "Del":
                 activeProcess.terms.remove(piece.get(1).getString());

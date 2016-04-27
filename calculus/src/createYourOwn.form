@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="createWindow" layout-manager="GridLayoutManager" row-count="8" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="5" left="5" bottom="5" right="5"/>
     <constraints>
-      <xy x="20" y="20" width="599" height="1231"/>
+      <xy x="20" y="20" width="599" height="1402"/>
     </constraints>
     <properties>
       <background color="-4407875"/>
@@ -361,6 +361,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="572a2" class="javax.swing.JTextField" binding="variableOut">
@@ -371,6 +372,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The variable the channel will output"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="641e8" class="javax.swing.JTextField" binding="channelsOut">
@@ -381,6 +383,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The channel which the process will output on"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="e6e68" class="javax.swing.JButton" binding="backButton1" default-binding="true">
@@ -390,6 +393,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -413,6 +417,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="950b4" class="javax.swing.JTextField" binding="inputVariableBind">
@@ -423,6 +428,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The binding the process will bind the input to"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="9472f" class="javax.swing.JTextField" binding="channelsIn">
@@ -433,6 +439,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The channel the process will input from"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="7dc4f" class="javax.swing.JButton" binding="backButton2" default-binding="true">
@@ -442,6 +449,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -465,6 +473,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="fbc82" class="javax.swing.JTextField" binding="keyToEncryptWith">
@@ -474,7 +483,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The key to encrypt the variable with"/>
+                  <toolTipText value="The key to encrypt the variable with. Specify a process name, or a variable binding."/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="c3456" class="javax.swing.JTextField" binding="variableToEncrypt">
@@ -485,6 +495,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The variable to be encrypted"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="7cf3" class="javax.swing.JButton" binding="backButton3">
@@ -494,6 +505,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -517,6 +529,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="7d26c" class="javax.swing.JTextField" binding="decryptKey">
@@ -526,7 +539,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The key to decrypt the variable with"/>
+                  <toolTipText value="The key to decrypt the variable with. Specify a process name, or a variable binding."/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="24c81" class="javax.swing.JTextField" binding="decryptVariable">
@@ -536,7 +550,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable to be decrypted"/>
+                  <toolTipText value="The binding of the encrypted term"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="b1c9d" class="javax.swing.JButton" binding="backButton4">
@@ -546,6 +561,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="da289" class="javax.swing.JTextField" binding="bindToDecrypt">
@@ -555,7 +571,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding to use after decryption"/>
+                  <toolTipText value="The binding for the decrypted term"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -579,6 +596,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="ec54b" class="javax.swing.JTextField" binding="pairBCreate">
@@ -588,7 +606,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable of the second half of the pair"/>
+                  <toolTipText value="The variable of the second term of the pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="3357a" class="javax.swing.JTextField" binding="pairACreate">
@@ -598,7 +617,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable of the first half of the pair"/>
+                  <toolTipText value="The variable of the first term of the pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="ab34c" class="javax.swing.JButton" binding="backButton5">
@@ -608,6 +628,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="aa035" class="javax.swing.JTextField" binding="pairBindCreate">
@@ -618,6 +639,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The binding of the new pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -641,6 +663,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="dc08" class="javax.swing.JTextField" binding="pairASplit">
@@ -650,7 +673,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding of the first half of the pair"/>
+                  <toolTipText value="The binding for the first term of the pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="a726b" class="javax.swing.JTextField" binding="pairBindSplit">
@@ -660,7 +684,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable the pair is bound to"/>
+                  <toolTipText value="The binding of the pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="f5826" class="javax.swing.JButton" binding="backButton6">
@@ -670,6 +695,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="20fcb" class="javax.swing.JTextField" binding="pairBSplit">
@@ -679,7 +705,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding of the second half of the pair"/>
+                  <toolTipText value="The binding for the second term of the pair"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -703,6 +730,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="false"/>
                 </properties>
               </component>
               <component id="e8391" class="javax.swing.JTextField">
@@ -713,6 +741,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The binding of the first half of the pair"/>
+                  <visible value="false"/>
                 </properties>
               </component>
               <component id="10d25" class="javax.swing.JTextField">
@@ -723,6 +752,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The variable the pair is bound to"/>
+                  <visible value="false"/>
                 </properties>
               </component>
               <component id="3e0c" class="javax.swing.JButton" binding="backButton7">
@@ -732,6 +762,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="false"/>
                 </properties>
               </component>
               <component id="938bb" class="javax.swing.JTextField">
@@ -742,6 +773,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The binding of the second half of the pair"/>
+                  <visible value="false"/>
                 </properties>
               </component>
             </children>
@@ -816,6 +848,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="8d404" class="javax.swing.JTextField" binding="matchA">
@@ -825,7 +858,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable the pair is bound to"/>
+                  <toolTipText value="The binding of the first term in the match"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="396f6" class="javax.swing.JButton" binding="backButton9">
@@ -835,6 +869,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="947f2" class="javax.swing.JTextField" binding="matchB">
@@ -844,7 +879,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding of the second half of the pair"/>
+                  <toolTipText value="The binding of the second term in the match"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -869,6 +905,7 @@
                 <properties>
                   <label value="Add"/>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="d86e5" class="javax.swing.JTextField" binding="caseA">
@@ -878,7 +915,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The variable the pair is bound to"/>
+                  <toolTipText value="The variable to check is 0"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="e1b40" class="javax.swing.JButton" binding="backButton10">
@@ -888,6 +926,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="df20c" class="javax.swing.JTextField" binding="succCase">
@@ -897,7 +936,8 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <toolTipText value="The binding of the second half of the pair"/>
+                  <toolTipText value="The binding to use for the successor of the first variable"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -921,6 +961,7 @@
                 </constraints>
                 <properties>
                   <text value="Add"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="c9591" class="javax.swing.JTextField" binding="arithmeticA">
@@ -931,6 +972,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The variable to update with the result of the arithmetic"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="3ba09" class="javax.swing.JButton" binding="backButton11">
@@ -940,6 +982,7 @@
                 <properties>
                   <margin top="2" left="8" bottom="2" right="8"/>
                   <text value="Back"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="2b977" class="javax.swing.JTextField" binding="arithmeticB">
@@ -950,6 +993,7 @@
                 </constraints>
                 <properties>
                   <toolTipText value="The binding to do the arithmetic with"/>
+                  <visible value="true"/>
                 </properties>
               </component>
               <component id="f9921" class="javax.swing.JComboBox" binding="comboBox4" default-binding="true">
@@ -963,6 +1007,7 @@
                     <item value="*"/>
                     <item value="/"/>
                   </model>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
